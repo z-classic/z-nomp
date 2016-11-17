@@ -1,24 +1,25 @@
 {
-    "name": "node-open-mining-portal",
+    "name": "z-nomp",
     "version": "0.0.4",
-    "description": "An extremely efficient, highly scalable, all-in-one, easy to setup cryptocurrency mining pool",
+    "description": Zclassic (Equihash) stratum mining pool based on NOMP",
     "keywords": [
         "stratum",
         "mining",
         "pool",
         "server",
         "poolserver",
-        "bitcoin",
-        "litecoin",
-        "scrypt"
+        "zclassic",
+        "zcash",
+        "equihash"
     ],
     "homepage": "https://github.com/joshuayabut/node-open-mining-portal",
     "bugs": {
         "url": "https://github.com/joshuayabut/node-open-mining-portal/issues"
     },
-    "license": "GPL-2.0",
-    "author": "Matthew Little",
+    "license": "MIT",
+    "author": "Joshua Yabut",
     "contributors": [
+        "Matthew Little",
         "vekexasia",
         "TheSeven"
     ],
@@ -28,10 +29,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/joshuayabut/node-open-mining-portal.git"
+        "url": "https://github.com/joshuayabut/z-nomp.git"
     },
     "dependencies": {
-        "stratum-pool": "https://github.com/joshuayabut/node-stratum-pool.git",
+        "stratum-pool": "git+https://github.com/joshuayabut/node-stratum-pool.git",
         "dateformat": "*",
         "node-json-minify": "*",
         "redis": "*",
