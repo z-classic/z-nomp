@@ -1,7 +1,7 @@
 {
     "name": "z-nomp",
     "version": "0.0.4",
-    "description": Zclassic (Equihash) stratum mining pool based on NOMP",
+    "description": "Zclassic (Equihash) stratum mining pool based on NOMP",
     "keywords": [
         "stratum",
         "mining",
