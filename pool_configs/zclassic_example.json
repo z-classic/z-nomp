@@ -1,12 +1,10 @@
 {
     "enabled": false,
-    "coin": "litecoin.json",
+    "coin": "zclassic.json",
 
-    "address": "n4jSe18kZMCdGcZqaYprShXW6EH1wivUK1",
+    "address": "t1dfrrxCHek2ts987VpZsRmFKBvdcBJ1Cqd",
 
     "rewardRecipients": {
-        "n37vuNFkXfk15uFnGoVyHZ6PYQxppD3QqK": 1.5,
-        "22851477d63a085dbc2398c8430af1c09e7343f6": 0.1
     },
 
     "paymentProcessing": {
@@ -43,14 +41,14 @@
     "daemons": [
         {
             "host": "127.0.0.1",
-            "port": 19332,
-            "user": "testuser",
-            "password": "testpass"
+            "port": 12177,
+            "user": "rpcuser",
+            "password": "rpcpassword"
         }
     ],
 
     "p2p": {
-        "enabled": true,
+        "enabled": false,
         "host": "127.0.0.1",
         "port": 19333,
         "disableTransactions": true
@@ -62,7 +60,7 @@
         "port": 3306,
         "user": "me",
         "password": "mypass",
-        "database": "ltc",
+        "database": "zcl",
         "checkPassword": true,
         "autoCreateWorker": false
     }
