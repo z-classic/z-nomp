@@ -64,10 +64,11 @@ Clone the repository and run `npm update` for all the dependencies to be install
 ```bash
 sudo apt-get install build-essential libsodium-dev npm
 sudo npm install n -g
-sudo n 0.10.13
+sudo n 0.12
 git clone https://github.com/joshuayabut/node-open-mining-portal.git z-nomp
 cd z-nomp
 npm update
+npm install
 ```
 
 ##### Pool config
@@ -207,7 +208,7 @@ are commented in [scripts/blocknotify.c](scripts/blocknotify.c).
 #### 3) Start the portal
 
 ```bash
-node init.js
+npm start
 ```
 
 ###### Optional enhancements for your awesome new mining pool server setup:
@@ -232,7 +233,6 @@ the `node-stratum-pool` and `node-multi-hashing` modules, and any config files t
 Credits
 -------
 * [Matthew Little / zone117x](https://github.com/zone117x) - developer of NOMP
-* [Sammy Libre / sammy007](https://github.com/sammy007) - developer of Golang Equihash solution verification function
 * [Jerry Brady / mintyfresh68](https://github.com/bluecircle) - got coin-switching fully working and developed proxy-per-algo feature
 * [Tony Dobbs](http://anthonydobbs.com) - designs for front-end and created the NOMP logo
 * [LucasJones](//github.com/LucasJones) - got p2p block notify working and implemented additional hashing algos
