@@ -50,7 +50,10 @@
         "extend": "*"
     },
     "engines": {
-        "node": ">=0.10"
+        "node": ">=0.12"
+    },
+    "scripts": { 
+         "start": "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/user/code/znomp/node_modules/stratum-pool/node_modules/equihashverify/ node init.js"
     }
 }
 
