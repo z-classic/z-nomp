@@ -1,4 +1,4 @@
-# Z-NOMP 
+# Z-NOMP (NOT YET READY FOR USE)
 #### Zclassic - Node Open Mining Portal
 
 This is a Zclassic mining pool based off of Node Open Mining Portal.
