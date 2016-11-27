@@ -22,10 +22,10 @@ module.exports = function(logger){
 
     async.filter(enabledPools, function(coin, callback){
         SetupForPool(logger, poolConfigs[coin], function(setupResults){
-            callback(setupResults);
+            callback(null, setupResults);
         });
-    }, function(coins){
-        coins.forEach(function(coin){
+    }, function(err, results){
+        results.forEach(function(coin){
 
             var poolOptions = poolConfigs[coin];
             var processingConfig = poolOptions.paymentProcessing;
@@ -62,45 +62,44 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
     var paymentInterval;
 
-    async.parallel([
-        function(callback){
-            daemon.cmd('validateaddress', [poolOptions.address], function(result) {
-                if (result.error){
-                    logger.error(logSystem, logComponent, 'Error with payment processing daemon ' + JSON.stringify(result.error));
-                    callback(true);
-                }
-                else if (!result.response || !result.response.ismine) {
-                    logger.error(logSystem, logComponent,
-                            'Daemon does not own pool address - payment processing can not be done with this daemon, '
-                            + JSON.stringify(result.response));
-                    callback(true);
-                }
-                else{
-                    callback()
-                }
-            }, true);
-        },
-        function(callback){
-            daemon.cmd('getbalance', [], function(result){
-                if (result.error){
-                    callback(true);
-                    return;
-                }
-                try {
-                    var d = result.data.split('result":')[1].split(',')[0].split('.')[1];
-                    magnitude = parseInt('10' + new Array(d.length).join('0'));
-                    minPaymentSatoshis = parseInt(processingConfig.minimumPayment * magnitude);
-                    coinPrecision = magnitude.toString().length - 1;
-                    callback();
-                }
-                catch(e){
-                    logger.error(logSystem, logComponent, 'Error detecting number of satoshis in a coin, cannot do payment processing. Tried parsing: ' + result.data);
-                    callback(true);
-                }
+    function validateAddress (callback){
+        daemon.cmd('validateaddress', [poolOptions.address], function(result) {
+            if (result.error){
+                logger.error(logSystem, logComponent, 'Error with payment processing daemon ' + JSON.stringify(result.error));
+                callback(true);
+            }
+            else if (!result.response || !result.response.ismine) {
+                logger.error(logSystem, logComponent,
+                    'Daemon does not own pool address - payment processing can not be done with this daemon, '
+                    + JSON.stringify(result.response));
+                callback(true);
+            }
+            else{
+                callback()
+            }
+        }, true);
+    }
 
-            }, true, true);
-        }
-    ], function(err){
+    function getBalance(callback){
+        daemon.cmd('getbalance', [], function(result){
+            if (result.error){
+                return callback(true);
+            }
+            try {
+                var d = result.data.split('result":')[1].split(',')[0].split('.')[1];
+                magnitude = parseInt('10' + new Array(d.length).join('0'));
+                minPaymentSatoshis = parseInt(processingConfig.minimumPayment * magnitude);
+                coinPrecision = magnitude.toString().length - 1;
+            }
+            catch(e){
+                logger.error(logSystem, logComponent, 'Error detecting number of satoshis in a coin, cannot do payment processing. Tried parsing: ' + result.data);
+                return callback(true);
+            }
+            callback();
+        }, true, true);
+    }
+
+    function asyncComplete(err){
         if (err){
             setupFinished(false);
             return;
@@ -114,9 +113,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
         }, processingConfig.paymentInterval * 1000);
         setTimeout(processPayments, 100);
         setupFinished(true);
-    });
+    }
 
-
+    async.parallel([validateAddress, getBalance], asyncComplete);
 
 
     var satoshisToCoins = function(satoshis){
