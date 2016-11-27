@@ -3,6 +3,15 @@
     "coin": "zclassic.json",
 
     "address": "t1dfrrxCHek2ts987VpZsRmFKBvdcBJ1Cqd",
+    "_comment_address": "a transparent address to send coinbase rewards to and to transfer to zAddress.",
+
+    "zAddress": "ztqgT4xsouCyjHXrFtXnDVgtvPRmURMgHQw2gd39dLdtoYkmPACScHturZjqsNdAPtP6JCLaWmZmYDqbjCMRgdCfQ2vjY2K",
+    "_comment_zAddress": "a private address used to send coins to tAddress.",
+
+    "tAddress": "tmLqYHEnCiL4dpktEKdAKeRjPdkxNtJVWfb",
+    "_comment_tAddress": "transparent address used to send payments",
+
+    "walletInterval": 10,
 
     "rewardRecipients": {
     },
