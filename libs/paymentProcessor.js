@@ -118,12 +118,13 @@ function SetupForPool(logger, poolOptions, setupFinished){
     async.parallel([validateAddress, getBalance], asyncComplete);
 
     //get t_address coinbalance
-    function listUnspent (addr, callback) {
-        daemon.cmd('listunspent', [100, 99999999999, [addr]], function (result) {
+    function listUnspent (addr, minConf, callback) {
+        daemon.cmd('listunspent', [minConf, 99999999999, [addr]], function (result) {
             //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
             if (result.error) {
                 logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC listunspent.'
                     + JSON.stringify(result.error));
+                callback = function (){};
                 callback(true);
             }
             else {
@@ -131,7 +132,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                 for (var i = 0, len = result[0].response.length; i < len; i++) {
                     tBalance = tBalance + (result[0].response[i].amount * 100000000);
                 }
-                logger.debug(logSystem, logComponent, 'T_address contains a balance of: ' + (tBalance / magnitude));
+                logger.debug(logSystem, logComponent, addr + ' contains a balance of: ' + (tBalance / magnitude));
                 callback(null, tBalance);
             }
         });
@@ -142,13 +143,13 @@ function SetupForPool(logger, poolOptions, setupFinished){
         daemon.cmd('z_getbalance', [addr, 3], function (result) {
             //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
             if (result.error) {
-                logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC z_getbalance.'
-                    + JSON.stringify(result.error));
+                logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC z_getbalance.' + JSON.stringify(result.error));
+                callback = function (){};
                 callback(true);
             }
             else {
                 var zBalance = result[0].response;
-                logger.debug(logSystem, logComponent, 'Z_address contains a balance of: ' + (zBalance));
+                logger.debug(logSystem, logComponent, addr + ' contains a balance of: ' + (zBalance));
                 callback(null, zBalance);
             }
         });
@@ -156,18 +157,21 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
     //send t_address balance to z_address
     function sendTToZ (callback, tBalance) {
+        if (callback === true)
+            return;
+        if ((tBalance - 10000) / magnitude < 0)
+            return;
         daemon.cmd('z_sendmany', [poolOptions.address,
-                [{'address': poolOptions.zAddress, 'amount': (tBalance - 10000) / magnitude}]],
+                [{'address': poolOptions.zAddress, 'amount': ((tBalance - 10000) / magnitude)}]],
             function (result) {
                 //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                 if (result.error) {
-                    logger.error(logSystem, logComponent, 'Error trying to send t_address coin balance to z_address.'
-                        + JSON.stringify(result.error));
+                    logger.error(logSystem, logComponent, 'Error trying to send t_address coin balance to z_address.' + JSON.stringify(result.error));
                     callback = function (){};
                     callback(true);
                 }
                 else {
-                    logger.debug(logSystem, logComponent, 'Sent t_address balance to z_address: ' + (tBalance - 10000) / magnitude);
+                    logger.debug(logSystem, logComponent, 'Sent t_address balance to z_address: ' + ((tBalance - 10000) / magnitude));
                     callback = function (){};
                     callback(null);
                 }
@@ -177,8 +181,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
     // send z_address balance to t_address
     function sendZToT (callback, zBalance) {
+        if (callback === true)
+            return;
+        if ((zBalance) - (10000 / magnitude) < 0)
+            return;
         daemon.cmd('z_sendmany', [poolOptions.zAddress,
-                [{'address': poolOptions.tAddress, 'amount': (zBalance ) - (10000 / magnitude)}]],
+                [{'address': poolOptions.tAddress, 'amount': ((zBalance) - (10000 / magnitude))}]],
             function (result) {
                 //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                 if (result.error) {
@@ -188,7 +196,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
-                    logger.debug(logSystem, logComponent, 'Sent z_address balance to t_address: ' + (zBalance ) - (10000 / magnitude));
+                    logger.debug(logSystem, logComponent, 'Sent z_address balance to t_address: ' + ((zBalance) - (10000 / magnitude)));
                     callback = function (){};
                     callback(null);
                 }
@@ -199,8 +207,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
     // run coinbase coin transfers every x minutes
     var interval = poolOptions.walletInterval * 60 * 1000; // run every x minutes
     setInterval(function() {
-        listUnspent(poolOptions.address, sendTToZ(tBalance));
-        listUnspentZ(poolOptions.zAddress, sendZToT(zBalance));
+        listUnspent(poolOptions.address, 100, sendTToZ);
+        listUnspentZ(poolOptions.zAddress, sendZToT);
+        listUnspent(poolOptions.tAddress, 3, function (){});
     }, interval);
 
 
@@ -413,7 +422,6 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 /* We found a confirmed block! Now get the reward for it and calculate how much
                                    we owe each miner based on the shares they submitted during that block round. */
                                 var reward = parseInt(round.reward * magnitude);
-                                // Send from t_address to z_address
 
                                 var totalShares = Object.keys(workerShares).reduce(function(p, c){
                                     return p + parseFloat(workerShares[c])
