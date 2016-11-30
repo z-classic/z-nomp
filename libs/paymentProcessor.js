@@ -160,7 +160,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
             else {
                 var tBalance = 0;
                 for (var i = 0, len = result[0].response.length; i < len; i++) {
-                    tBalance = tBalance + (result[0].response[i].amount * 100000000);
+                    tBalance = Number(tBalance + (result[0].response[i].amount * 100000000)).toFixed(0);
                 }
                 logger.debug(logSystem, logComponent, addr + ' contains a balance of: ' + (tBalance / magnitude));
                 callback(null, tBalance);
