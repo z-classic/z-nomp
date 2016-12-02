@@ -78,6 +78,8 @@ function SetupForPool(logger, poolOptions, setupFinished){
                 callback()
             }
         }, true);
+    }
+    function validateTAddress (callback) {
         daemon.cmd('validateaddress', [poolOptions.tAddress], function(result) {
             if (result.error){
                 logger.error(logSystem, logComponent, 'Error with payment processing daemon ' + JSON.stringify(result.error));
@@ -93,6 +95,8 @@ function SetupForPool(logger, poolOptions, setupFinished){
                 callback()
             }
         }, true);
+     }
+     function validateZAddress (callback) {
         daemon.cmd('z_validateaddress', [poolOptions.zAddress], function(result) {
             if (result.error){
                 logger.error(logSystem, logComponent, 'Error with payment processing daemon ' + JSON.stringify(result.error));
