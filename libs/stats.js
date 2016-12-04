@@ -272,9 +272,9 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
     this.getReadableHashRateString = function(hashrate){
         var i = -1;
-        var byteUnits = [ ' KH', ' MH', ' GH', ' TH', ' PH' ];
+        var byteUnits = [ ' Sol',' KSol', ' MSol', ' GSol', ' TSol', ' PSol' ];
         do {
-            hashrate = hashrate / 1000;
+            hashrate = hashrate / 100000;
 			i++;
         } while (hashrate > 1000);
         return hashrate.toFixed(2) + byteUnits[i];
