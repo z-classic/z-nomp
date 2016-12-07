@@ -274,9 +274,10 @@ module.exports = function(logger, portalConfig, poolConfigs){
         var i = -1;
         var byteUnits = [ ' Sol',' KSol', ' MSol', ' GSol', ' TSol', ' PSol' ];
         do {
-            hashrate = hashrate / 100000;
-			i++;
-        } while (hashrate > 1000);
+            hashrate = hashrate / 1024;
+            i++;
+        } while (hashrate > 1024);
+
         return hashrate.toFixed(2) + byteUnits[i];
     };
 
