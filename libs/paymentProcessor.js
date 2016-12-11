@@ -588,7 +588,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             return;
                         case 'generate':
                             movePendingCommands.push(['smove', coin + ':blocksPending', coin + ':blocksConfirmed', r.serialized]);
-                            //roundsToDelete.push(coin + ':shares:round' + r.height);
+                            //roundsToDelete.push(coin + ':shares:round' + r.height); TODO, make this an option in poolconfig
                             return;
                     }
 
