@@ -10,6 +10,7 @@ var util = require('stratum-pool/lib/util.js');
 module.exports = function(logger){
 
     var poolConfigs = JSON.parse(process.env.pools);
+	var portalConfig = JSON.parse(process.env.portalConfig);
 
     var enabledPools = [];
 
@@ -164,7 +165,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
             else {
                 var tBalance = 0;
                 for (var i = 0, len = result[0].response.length; i < len; i++) {
-                    tBalance = Number(tBalance + (result[0].response[i].amount * 100000000)).toFixed(0);
+                     tBalance = tBalance + Number((result[0].response[i].amount * magnitude));
                 }
                 logger.debug(logSystem, logComponent, addr + ' contains a balance of: ' + (tBalance / magnitude));
                 callback(null, tBalance);
@@ -509,7 +510,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return;
                     }
 
-                    daemon.cmd('sendmany', [addressAccount || '', addressAmounts], function (result) {
+                    daemon.cmd('sendmany', [addressAccount, addressAmounts], function (result) {
                         //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                         if (result.error && result.error.code === -6) {
                             var higherPercent = withholdPercent + 0.01;
@@ -588,7 +589,11 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             return;
                         case 'generate':
                             movePendingCommands.push(['smove', coin + ':blocksPending', coin + ':blocksConfirmed', r.serialized]);
-                            roundsToDelete.push(coin + ':shares:round' + r.height);
+							if (portalConfig.defaultPoolConfigs.redis.keepRounds) {
+								//Do nothing
+							} else {
+								roundsToDelete.push(coin + ':shares:round' + r.height);
+							}
                             return;
                     }
 
