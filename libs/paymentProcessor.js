@@ -10,6 +10,7 @@ var util = require('stratum-pool/lib/util.js');
 module.exports = function(logger){
 
     var poolConfigs = JSON.parse(process.env.pools);
+	var portalConfig = JSON.parse(process.env.portalConfig);
 
     var enabledPools = [];
 
@@ -588,7 +589,11 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             return;
                         case 'generate':
                             movePendingCommands.push(['smove', coin + ':blocksPending', coin + ':blocksConfirmed', r.serialized]);
-                            //roundsToDelete.push(coin + ':shares:round' + r.height); TODO, make this an option in poolconfig
+							if (portalConfig.defaultPoolConfigs.redis.keepRounds) {
+								//Do nothing
+							} else {
+								roundsToDelete.push(coin + ':shares:round' + r.height);
+							}
                             return;
                     }
 
