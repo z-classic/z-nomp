@@ -1,4 +1,4 @@
-# Z-NOMP (READY FOR TESTING)
+# Z-NOMP (READY FOR TESTING) (STILL IS AS OF 12/14/16)
 #### Zclassic - Node Open Mining Portal
 
 This is a Zclassic mining pool based off of Node Open Mining Portal.
@@ -21,7 +21,7 @@ IRC
 If your pool uses Z-NOMP let us know and we will list your website here.
 
 ##### Some pools using Z-NOMP or node-stratum-module:
-* //to be added
+http://91.121.77.102:8888/ Currently, this pool has found over 100 blocks in just under a month!
 
 
 Usage
@@ -78,6 +78,13 @@ npm install
 ##### Pool config
 Take a look at the example json file inside the `pool_configs` directory. Rename it to `zclassic.json` and change the
 example fields to fit your setup.
+
+Solo mining? Set a port with a ridiculously high difficulty to force z-nomp to use the network difficulty, so every share finds a block
+```
+"3032": {
+     "diff": 999999999999999
+}
+```
 
 
 ##### [Optional, recommended] Setting up blocknotify
