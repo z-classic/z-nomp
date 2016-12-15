@@ -9,7 +9,7 @@
     "_comment_zAddress": "a private address used to send coins to tAddress.",
 
     "tAddress": "tmLqYHEnCiL4dpktEKdAKeRjPdkxNtJVWfb",
-    "_comment_tAddress": "transparent address used to send payments",
+    "_comment_tAddress": "transparent address used to send payments, make this a different address, otherwise payments will not send",
 
     "walletInterval": 10,
 
