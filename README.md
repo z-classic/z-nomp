@@ -21,7 +21,7 @@ IRC
 If your pool uses Z-NOMP let us know and we will list your website here.
 
 ##### Some pools using Z-NOMP or node-stratum-module:
-http://91.121.77.102:8888/ Currently, this pool has found over 100 blocks in just under a month!
+http://zclpool.tk:8888 Currently, this pool has found over 100 blocks in just under a month!
 https://pool.cryptobroker.io/zcl Running MPOS
 
 
