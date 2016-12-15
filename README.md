@@ -80,7 +80,7 @@ npm install
 Take a look at the example json file inside the `pool_configs` directory. Rename it to `zclassic.json` and change the
 example fields to fit your setup.
 
-Solo mining? Set a port with a ridiculously high difficulty to force z-nomp to use the network difficulty, so every share finds a block
+Solo mining? Set a port with a ridiculously high difficulty to force z-nomp to use the network difficulty, so every share finds a block. Be sure to disable payments as well.
 ```
 "3032": {
      "diff": 999999999999999
