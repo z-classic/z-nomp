@@ -25,9 +25,7 @@ http://zclpool.tk:8888 Currently, this pool has found over 100 blocks in just un
 
 https://pool.cryptobroker.io/zcl Running MPOS
 
-http://zclassic.coin-miners.info/
-
-http://zdash.coin-miners.info/
+http://zclassic.coin-miners.info/ and http://zdash.coin-miners.info/
 
 Usage
 =====
