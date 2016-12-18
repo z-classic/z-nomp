@@ -84,9 +84,9 @@ example fields to fit your setup.
 
 ###### Note: 1 Difficulty is actually 8192, 0.125 Difficulty is actually 1024.
 
-Whenever a miner submits a share, the pool counts the difficulty and keeps adding them as the shares. 
+###### Whenever a miner submits a share, the pool counts the difficulty and keeps adding them as the shares. 
 
-ie: Miner 1 mines at 0.1 difficulty and finds 10 shares, the pool sees it as 1 share. Miner 2 mines at 0.5 difficulty and finds 5 shares, the pool sees it as 2.5 shares.
+###### ie: Miner 1 mines at 0.1 difficulty and finds 10 shares, the pool sees it as 1 share. Miner 2 mines at 0.5 difficulty and finds 5 ###### shares, the pool sees it as 2.5 shares.
 
 Solo mining? Set a port with a ridiculously high difficulty to force z-nomp to use the network difficulty, so every share finds a block. Be sure to disable payments as well.
 ```
