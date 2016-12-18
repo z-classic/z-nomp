@@ -1,0 +1,5 @@
+{
+    "name": "zcash",
+    "symbol": "zec",
+    "algorithm": "equihash"
+}
