@@ -149,7 +149,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
         setupFinished(true);
     }
 
-    async.parallel([validateAddress, getBalance], asyncComplete);
+    async.parallel([validateAddress, validateTAddress, validateZAddress, getBalance], asyncComplete);
 
     //get t_address coinbalance
     function listUnspent (addr, minConf, callback) {
@@ -164,7 +164,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
             else {
                 var tBalance = 0;
                 for (var i = 0, len = result[0].response.length; i < len; i++) {
-                    tBalance = tBalance + Number((result[0].response[i].amount * magnitude));
+                    tBalance = tBalance + result[0].response[i].amount * magnitude;
                 }
                 logger.debug(logSystem, logComponent, addr + ' contains a balance of: ' + (tBalance / magnitude));
                 callback(null, tBalance);
