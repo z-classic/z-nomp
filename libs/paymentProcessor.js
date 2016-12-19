@@ -509,7 +509,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return;
                     }
 
-                    daemon.cmd('sendmany', [addressAccount, addressAmounts], function (result) {
+                    daemon.cmd('sendmany', [addressAccount || '', addressAmounts], function (result) {
                         //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                         if (result.error && result.error.code === -6) {
                             var higherPercent = withholdPercent + 0.01;
@@ -588,7 +588,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             return;
                         case 'generate':
                             movePendingCommands.push(['smove', coin + ':blocksPending', coin + ':blocksConfirmed', r.serialized]);
-                            //roundsToDelete.push(coin + ':shares:round' + r.height);
+                            roundsToDelete.push(coin + ':shares:round' + r.height);
                             return;
                     }
 
