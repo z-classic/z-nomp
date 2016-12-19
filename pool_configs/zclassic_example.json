@@ -30,12 +30,12 @@
 
     "ports": {
         "3032": {
-            "diff": 0.125,
+            "diff": 0.05,
             "varDiff": {
-                "minDiff": 0.125,
+                "minDiff": 0.04,
                 "maxDiff": 16,
                 "targetTime": 15,
-                "retargetTime": 90,
+                "retargetTime": 60,
                 "variancePercent": 30
             }
         }
