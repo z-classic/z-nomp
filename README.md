@@ -1,5 +1,6 @@
-# Z-NOMP
-#### Zclassic - Node Open Mining Portal
+# Zcash and Zclassic - Node Open Mining Portal
+
+**[Click here for the Unofficial - Zcash and Zclassic Stratum Mining Pool Installation Guide](https://zdeveloper.org/wiki:z-nomp_install)**
 
 This is a Zclassic mining pool based off of Node Open Mining Portal.
 
@@ -8,7 +9,7 @@ Donations for development are greatly appreciated!
   * ZCL: zcXDWbgReztLLXSTUMT2nEumiDM6zTzUXFb7vUnx9JNfJDVqbodyxwEQwgDkFw7Dp128tBU8n8rmVxT43DshmeTEM4LHcdz
 
 #### Production Usage Notice
-This is beta software. All of the following are things that can change and break an existing Z-NOMP setup: functionality of any feature, structure of configuration files and structure of redis data. If you use this software in production then *DO NOT* pull new code straight into production usage because it can and often will break your setup and require you to tweak things like config files or redis data.
+This is beta software. All of the following are things that can change and break an existing Z-NOMP setup: functionality of any feature, structure of configuration files and structure of redis data. If you use this software in production then *DO NOT* pull new code straight into production usage because it can and often will break your setup and require you to tweak things like config files or redis data. *Only tagged releases are considered stable.*
 
 #### Paid Solution
 Usage of this software requires abilities with sysadmin, database admin, coin daemons, and sometimes a bit of programming. Running a production pool can literally be more work than a full-time job. 
@@ -88,13 +89,6 @@ Please Note that: 1 Difficulty is actually 8192, 0.125 Difficulty is actually 10
 Whenever a miner submits a share, the pool counts the difficulty and keeps adding them as the shares. 
 
 ie: Miner 1 mines at 0.1 difficulty and finds 10 shares, the pool sees it as 1 share. Miner 2 mines at 0.5 difficulty and finds 5 shares, the pool sees it as 2.5 shares. 
-```
-
-Solo mining? Set a port with a ridiculously high difficulty to force z-nomp to use the network difficulty, so every share finds a block. Be sure to disable payments as well.
-```
-"3032": {
-     "diff": 999999999999999
-}
 ```
 
 
