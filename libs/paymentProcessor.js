@@ -152,8 +152,14 @@ function SetupForPool(logger, poolOptions, setupFinished){
     async.parallel([validateAddress, validateTAddress, validateZAddress, getBalance], asyncComplete);
 
     //get t_address coinbalance
-    function listUnspent (addr, minConf, displayBool, callback) {
-        daemon.cmd('listunspent', [minConf, 99999999999, [addr]], function (result) {
+    function listUnspent (addr, notAddr, minConf, displayBool, callback) {
+        if (addr !== null) {
+            var args = [minConf, 99999999999, [addr]];
+        } else {
+            addr = 'Payment-ready wallet';
+            var args = [minConf, 99999999999];
+        }
+        daemon.cmd('listunspent', args, function (result) {
             //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
             if (result.error) {
                 logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC listunspent.'
@@ -164,7 +170,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
             else {
                 var tBalance = 0;
                 for (var i = 0, len = result[0].response.length; i < len; i++) {
-                    tBalance = tBalance + (result[0].response[i].amount * magnitude);
+                    if (result[0].response[i].address !== notAddr) {
+                        tBalance = tBalance + (result[0].response[i].amount * magnitude);
+                    }
                 }
                 if (displayBool === true) {
                     logger.special(logSystem, logComponent, addr + ' contains a balance of ' + (tBalance / magnitude).toFixed(8));
@@ -245,9 +253,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
     // run coinbase coin transfers every x minutes
     var interval = poolOptions.walletInterval * 60 * 1000; // run every x minutes
     setInterval(function() {
-        listUnspent(poolOptions.address, 1, true, sendTToZ);
+        listUnspent(poolOptions.address, null, 1, true, sendTToZ);
         listUnspentZ(poolOptions.zAddress, 1, true, sendZToT);
-        listUnspent(poolOptions.tAddress, 1, true, function (){});
+        listUnspent(null, poolOptions.address, 1, true, function (){});
     }, interval);
 
 
@@ -418,9 +426,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     for (var i = 0; i < rounds.length; i++) {
                         totalOwed = totalOwed + (rounds[i].reward * magnitude);
                     }
-                    listUnspent(poolOptions.tAddress, 1, false, function (error, tBalance){
-                        if (tBalance < totalOwed) {
-                            logger.error(logSystem, logComponent, (tBalance / magnitude).toFixed(8) + ' is not enough tAddress funds to process ' + (totalOwed / magnitude).toFixed(8) + ' of payments. (Possibly due to pending txs)');
+                    listUnspent(null, poolOptions.address, 1, false, function (error, wBalance){
+                        if (wBalance < totalOwed) {
+                            logger.error(logSystem, logComponent, (tBalance / magnitude).toFixed(8) + ' is not enough payment funds to process ' + (totalOwed / magnitude).toFixed(8) + ' of payments. (Possibly due to pending txs)');
                             return callback(true);
                         }
                         else {
