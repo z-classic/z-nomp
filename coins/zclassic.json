@@ -1,5 +1,6 @@
 {
     "name": "zclassic",
     "symbol": "zcl",
-    "algorithm": "equihash"
+    "algorithm": "equihash",
+    "peerMagic": "24e92764"
 }
