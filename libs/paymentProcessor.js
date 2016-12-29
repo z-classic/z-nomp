@@ -155,7 +155,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function listUnspent (addr, minConf, displayBool, callback) {
         daemon.cmd('listunspent', [minConf, 99999999999, [addr]], function (result) {
             //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
-            if (result[0].error) {
+            if (result.error) {
                 logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC listunspent.'
                     + JSON.stringify(result[0].error));
                 callback = function (){};
