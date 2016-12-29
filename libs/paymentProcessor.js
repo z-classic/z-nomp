@@ -163,7 +163,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
             //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
             if (result.error) {
                 logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC listunspent.'
-                    + JSON.stringify(result[0].error));
+                    + JSON.stringify(result.error));
                 callback = function (){};
                 callback(true);
             }
@@ -205,10 +205,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function sendTToZ (callback, tBalance) {
         if (callback === true)
             return;
-        if ((tBalance - 10000) < 0)
+        if ((tBalance - 1000) < 0)
             return;
         daemon.cmd('z_sendmany', [poolOptions.address,
-                [{'address': poolOptions.zAddress, 'amount': ((tBalance - 10000) / magnitude)}]],
+                [{'address': poolOptions.zAddress, 'amount': ((tBalance - 1000) / magnitude)}]],
             function (result) {
                 //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                 if (result.error) {
@@ -217,7 +217,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
-                    logger.special(logSystem, logComponent, 'Sent tAddress balance to z_address: ' + ((tBalance - 10000) / magnitude));
+                    logger.special(logSystem, logComponent, 'Sent tAddress balance to z_address: ' + ((tBalance - 1000) / magnitude));
                     callback = function (){};
                     callback(null);
                 }
@@ -229,10 +229,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function sendZToT (callback, zBalance) {
         if (callback === true)
             return;
-        if ((zBalance - 10000) < 0)
+        if ((zBalance - 1000) < 0)
             return;
         daemon.cmd('z_sendmany', [poolOptions.zAddress,
-                [{'address': poolOptions.tAddress, 'amount': ((zBalance - 10000) / magnitude)}]],
+                [{'address': poolOptions.tAddress, 'amount': ((zBalance - 1000) / magnitude)}]],
             function (result) {
                 //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                 if (result.error) {
@@ -242,7 +242,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
-                    logger.special(logSystem, logComponent, 'Sent zAddress balance to t_address: ' + ((zBalance - 10000) / magnitude));
+                    logger.special(logSystem, logComponent, 'Sent zAddress balance to t_address: ' + ((zBalance - 1000) / magnitude));
                     callback = function (){};
                     callback(null);
                 }
@@ -389,7 +389,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
                         round.category = generationTx.category;
                         if (round.category === 'generate') {
-                            round.reward = generationTx.amount || generationTx.value;
+                            round.reward = generationTx.amount - 0.00004 || generationTx.value - 0.00004; // TODO: Adjust fees to be dynamic
                         }
 
                     });
