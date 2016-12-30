@@ -1,7 +1,0 @@
-{
-    "name": "Copperlark",
-    "symbol": "CLR",
-    "algorithm": "keccak",
-    "normalHashing": true,
-    "diffShift": 32
-}

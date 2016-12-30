@@ -1,6 +1,0 @@
-{
-    "name": "Hirocoin",
-    "symbol": "HIRO",
-    "algorithm": "x11",
-    "mposDiffMultiplier": 256
-}

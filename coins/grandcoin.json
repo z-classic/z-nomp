@@ -1,7 +1,0 @@
-{
-    "name": "Grandcoin",
-    "symbol": "GDC",
-    "algorithm": "scrypt",
-    "peerMagic": "fdc1a5db",
-    "txMessages": true
-}
