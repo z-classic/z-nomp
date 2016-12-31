@@ -428,7 +428,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     }
                     listUnspent(null, poolOptions.address, 1, false, function (error, wBalance){
                         if (wBalance < totalOwed) {
-                            logger.error(logSystem, logComponent, (tBalance / magnitude).toFixed(8) + ' is not enough payment funds to process ' + (totalOwed / magnitude).toFixed(8) + ' of payments. (Possibly due to pending txs)');
+                            logger.error(logSystem, logComponent, (wBalance / magnitude).toFixed(8) + ' is not enough payment funds to process ' + (totalOwed / magnitude).toFixed(8) + ' of payments. (Possibly due to pending txs)');
                             return callback(true);
                         }
                         else {
