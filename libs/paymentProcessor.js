@@ -205,10 +205,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function sendTToZ (callback, tBalance) {
         if (callback === true)
             return;
-        if ((tBalance - 1000) < 0)
+        if ((tBalance - 10000) < 0)
             return;
         daemon.cmd('z_sendmany', [poolOptions.address,
-                [{'address': poolOptions.zAddress, 'amount': ((tBalance - 1000) / magnitude)}]],
+                [{'address': poolOptions.zAddress, 'amount': ((tBalance - 10000) / magnitude)}]],
             function (result) {
                 //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                 if (result.error) {
@@ -217,7 +217,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
-                    logger.special(logSystem, logComponent, 'Sent tAddress balance to z_address: ' + ((tBalance - 1000) / magnitude));
+                    logger.special(logSystem, logComponent, 'Sent tAddress balance to z_address: ' + ((tBalance - 10000) / magnitude));
                     callback = function (){};
                     callback(null);
                 }
@@ -229,10 +229,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function sendZToT (callback, zBalance) {
         if (callback === true)
             return;
-        if ((zBalance - 1000) < 0)
+        if ((zBalance - 10000) < 0)
             return;
         daemon.cmd('z_sendmany', [poolOptions.zAddress,
-                [{'address': poolOptions.tAddress, 'amount': ((zBalance - 1000) / magnitude)}]],
+                [{'address': poolOptions.tAddress, 'amount': ((zBalance - 10000) / magnitude)}]],
             function (result) {
                 //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                 if (result.error) {
@@ -242,7 +242,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
-                    logger.special(logSystem, logComponent, 'Sent zAddress balance to t_address: ' + ((zBalance - 1000) / magnitude));
+                    logger.special(logSystem, logComponent, 'Sent zAddress balance to t_address: ' + ((zBalance - 10000) / magnitude));
                     callback = function (){};
                     callback(null);
                 }
@@ -389,7 +389,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
                         round.category = generationTx.category;
                         if (round.category === 'generate') {
-                            round.reward = generationTx.amount - 0.00004 || generationTx.value - 0.00004; // TODO: Adjust fees to be dynamic
+                            round.reward = generationTx.amount - 0.0004 || generationTx.value - 0.0004; // TODO: Adjust fees to be dynamic
                         }
 
                     });
@@ -424,11 +424,11 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     // check if we have enough tAddress funds to send payments
                     var totalOwed = 0;
                     for (var i = 0; i < rounds.length; i++) {
-                        totalOwed = totalOwed + (rounds[i].reward * magnitude);
+                        totalOwed = totalOwed + (rounds[i].reward * magnitude) - 4000; // TODO: make tx fees dynamic
                     }
-                    listUnspent(null, poolOptions.address, 1, false, function (error, wBalance){
-                        if (wBalance < totalOwed) {
-                            logger.error(logSystem, logComponent, (wBalance / magnitude).toFixed(8) + ' is not enough payment funds to process ' + (totalOwed / magnitude).toFixed(8) + ' of payments. (Possibly due to pending txs)');
+                    listUnspent(null, poolOptions.address, 1, false, function (error, tBalance){
+                        if (tBalance < totalOwed) {
+                            logger.error(logSystem, logComponent, (tBalance / magnitude).toFixed(8) + ' is not enough payment funds to process ' + (totalOwed / magnitude).toFixed(8) + ' of payments. (Possibly due to pending txs)');
                             return callback(true);
                         }
                         else {
