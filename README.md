@@ -17,7 +17,7 @@ Usage of this software requires abilities with sysadmin, database admin, coin da
 
 ### Community / Support
 IRC
-* Support / general discussion join: https://zclassic.herokuapp.com
+* Support / general discussion join: https://rocketchat.zdeveloper.org
 
 If your pool uses Z-NOMP let us know and we will list your website here.
 
