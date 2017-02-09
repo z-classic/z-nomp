@@ -28,7 +28,7 @@ https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zc
 
 http://zclassic.miningspeed.com Custom frontend and 0% fee
 
-http://zclassic.coin-miners.info/ and http://zdash.coin-miners.info/
+http://luckpool.org Zcash Pool with Custom Frontend w/Miner's Jackpot
 
 Usage
 =====
