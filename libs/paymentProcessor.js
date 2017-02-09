@@ -531,6 +531,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return;
                     }
 
+                    console.log(addressAmounts);
                     daemon.cmd('sendmany', [addressAccount || '', addressAmounts], function (result) {
                         //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
                         if (result.error && result.error.code === -6) {
