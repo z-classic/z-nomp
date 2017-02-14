@@ -30,9 +30,17 @@
         }
     },
 
+    "tlsOptions": {
+        "enabled": false,
+        "serverKey":"",
+        "serverCert":"",
+        "ca":""
+    },
+
     "ports": {
         "3032": {
             "diff": 0.05,
+            "tls": false,
             "varDiff": {
                 "minDiff": 0.04,
                 "maxDiff": 16,

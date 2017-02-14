@@ -54,7 +54,7 @@ Follow the build/install instructions for your coin daemon. Your coin.conf file 
 daemon=1
 rpcuser=zclassicrpc
 rpcpassword=securepassword
-rpcport=19332
+rpcport=8232
 ```
 For redundancy, its recommended to have at least two daemon instances running in case one drops out-of-sync or offline,
 all instances will be polled for block/transaction updates and be used for submitting blocks. Creating a backup daemon
@@ -102,7 +102,7 @@ node [path to cli.js] [coin name in config] [block hash symbol]
 ```
 Example: inside `zclassic.conf` add the line
 ```
-blocknotify=node /home/z-nomp/scripts/cli.js blocknotify zclassic %s
+blocknotify=node /home/user/z-nomp/scripts/cli.js blocknotify zclassic %s
 ```
 
 Alternatively, you can use a more efficient block notify script written in pure C. Build and usage instructions
