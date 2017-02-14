@@ -12,13 +12,15 @@
         "zcash",
         "equihash"
     ],
-    "homepage": "https://github.com/joshuayabut/node-open-mining-portal",
+    "homepage": "https://github.com/z-classic/z-nomp",
     "bugs": {
-        "url": "https://github.com/joshuayabut/node-open-mining-portal/issues"
+        "url": "https://github.com/z-classic/z-nomp/issues"
     },
     "license": "MIT",
     "author": "Joshua Yabut",
     "contributors": [
+        "aayanl",
+        "sennevb",
         "Matthew Little",
         "vekexasia",
         "TheSeven"
@@ -29,10 +31,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/joshuayabut/z-nomp.git"
+        "url": "https://github.com/z-classic/z-nomp.git"
     },
     "dependencies": {
-        "stratum-pool": "git+https://github.com/joshuayabut/node-stratum-pool.git",
+        "stratum-pool": "git+https://github.com/z-classic/node-stratum-pool.git",
         "dateformat": "*",
         "node-json-minify": "*",
         "redis": "*",
