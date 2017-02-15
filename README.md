@@ -131,7 +131,7 @@ the `node-stratum-pool` and `node-multi-hashing` modules, and any config files t
 * Inside your Z-NOMP directory (where the init.js script is) do `git pull` to get the latest Z-NOMP code.
 * Remove the dependenices by deleting the `node_modules` directory with `rm -r node_modules`.
 * Run `npm update` to force updating/reinstalling of the dependencies.
-* Compare your `config.json` and `pool_configs/coin.json` configurations to the latest example ones in this repo or the ones in the setup instructions where each config field is explained. You may need to modify or add any new changes.
+* Compare your `config.json` and `pool_configs/coin.json` configurations to the latest example ones in this repo or the ones in the setup instructions where each config field is explained. <b>You may need to modify or add any new changes.</b>
 
 
 Credits
