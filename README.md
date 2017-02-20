@@ -26,6 +26,8 @@ http://zclmine.com/ Custom frontend with 1% of the fee going to the Zclassic don
 
 https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zclassic donation fund! 200+ blocks have been found as well! 
 
+https://zcl.minegate.eu/ 0% fee but with 2% of donations going towards zclassic donation fund
+
 http://zclassic.miningspeed.com Custom frontend and 0% fee
 
 http://luckpool.org Zcash Pool with Custom Frontend w/Miner's Jackpot
