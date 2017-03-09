@@ -480,9 +480,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     // update confirmations in redis for pending blocks
                     var confirmsUpdate = blockDetails.map(function(b){
                         if (b.result != null && b.result.confirmations > 0) {
-                            //if (b.result.confirmations > 100) {
-                            //    return ['hdel', logComponent + ':blocksPendingConfirms', b.result.hash];    
-                            //}
+                            if (b.result.confirmations > 100) {
+                                return ['hdel', logComponent + ':blocksPendingConfirms', b.result.hash];    
+                            }
                             return ['hset', logComponent + ':blocksPendingConfirms', b.result.hash, b.result.confirmations];
                         }
                         return null;
