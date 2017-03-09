@@ -118,7 +118,7 @@
 			<div class="boxLowerHeader">{{=capitalizeFirstLetter(it.stats.pools[pool].name)}} Blocks Found &nbsp;&nbsp;
 			<span style="float:right;"><small>
             <i class="fa fa-bars"></i> <span id="statsValidBlocks{{=pool}}">{{=it.stats.pools[pool].poolStats.validBlocks}}</span> Blocks &nbsp;&nbsp;
-			<i class="fa fa-money"></i> Paid: <span id="statsTotalPaid{{=pool}}">{{=(parseFloat(it.stats.pools[pool].poolStats.totalPaid)+paidJackpots).toFixed(8)}}</span> {{=it.stats.pools[pool].symbol}}</small>&nbsp;&nbsp;</span>
+			<i class="fa fa-money"></i> Paid: <span id="statsTotalPaid{{=pool}}">{{=(parseFloat(it.stats.pools[pool].poolStats.totalPaid)).toFixed(8)}}</span> {{=it.stats.pools[pool].symbol}}</small>&nbsp;&nbsp;</span>
 			</div>
             <div class="boxStatsList" style="margin-top: 9px;">
 			<!--<div id="{{=it.stats.pools[pool].name}}NewBlocks"></div>-->
@@ -181,7 +181,6 @@
         statsSource.addEventListener('message', function (e) {
             var stats = JSON.parse(e.data);
             for (var pool in stats.pools) {
-				var paidJackpots = parseFloat(stats.pools[pool].poolStats.validBlocks) * 1.0;
 				$('#statsMiners' + pool).text(stats.pools[pool].minerCount);
                 $('#statsWorkers' + pool).text(stats.pools[pool].workerCount);
                 $('#statsHashrate' + pool).text(stats.pools[pool].hashrateString);
