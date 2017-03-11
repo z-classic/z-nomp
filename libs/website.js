@@ -41,7 +41,8 @@ module.exports = function(logger){
         'workers.html': 'workers',
         'api.html': 'api',
         'admin.html': 'admin',
-        'mining_key.html': 'mining_key'
+        'mining_key.html': 'mining_key',
+		'miner_stats.html': 'miner_stats'
     };
 
     var pageTemplates = {};
@@ -122,7 +123,6 @@ module.exports = function(logger){
     };
 
     setInterval(buildUpdatedWebsite, websiteConfig.stats.updateInterval * 1000);
-
 
     var buildKeyScriptPage = function(){
         async.waterfall([
@@ -215,6 +215,58 @@ module.exports = function(logger){
         }
     };
 
+    var minerpage = function(req, res, next){
+        var address = req.params.address || null;
+        if (address != null) {
+			address = address.split(".")[0];
+            portalStats.getBalanceByAddress(address, function(){
+                processTemplates();
+                res.end(indexesProcessed['miner_stats']);
+            });
+        }
+        else
+            next();
+    };
+
+    var payout = function(req, res, next){
+        var address = req.params.address || null;
+
+        if (address != null){
+            portalStats.getPayout(address, function(data){
+                res.write(data.toString());
+                res.end();
+            });
+        }
+        else
+            next();
+    };
+
+
+    var shares = function(req, res, next){
+        portalStats.getCoins(function(){
+            processTemplates();
+
+            res.end(indexesProcessed['user_shares']);
+
+        });
+    };
+
+    var usershares = function(req, res, next){
+
+        var coin = req.params.coin || null;
+
+        if(coin != null){
+            portalStats.getCoinTotals(coin, null, function(){
+                processTemplates();
+
+                res.end(indexesProcessed['user_shares']);
+
+            });
+        }
+        else
+            next();
+    };
+	
     var route = function(req, res, next){
         var pageId = req.params.page || '';
         if (pageId in indexesProcessed){
@@ -246,6 +298,11 @@ module.exports = function(logger){
         res.end(keyScriptProcessed);
     });
 
+    //app.get('/stats/shares/:coin', usershares);
+    //app.get('/stats/shares', shares);
+	//app.get('/payout/:address', payout);
+	app.get('/workers/:address', minerpage);
+	
     app.get('/:page', route);
     app.get('/', route);
 
