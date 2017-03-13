@@ -11,7 +11,7 @@
     "tAddress": "tmLqYHEnCiL4dpktEKdAKeRjPdkxNtJVWfb",
     "_comment_tAddress": "transparent address used to send payments, make this a different address, otherwise payments will not send",
 
-    "walletInterval": 10,
+    "walletInterval": 2.5,
 
     "rewardRecipients": {
     },
