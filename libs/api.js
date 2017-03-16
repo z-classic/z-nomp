@@ -56,7 +56,6 @@ module.exports = function(logger, portalConfig, poolConfigs){
 										//console.log(portalStats.statHistory[h].time);
 									}
 								}
-								networkSols = portalStats.statHistory[h].pools[pool].poolStats.networkSols;
 								// note, h is the last record from above loop, which is latest
 								for(var pool in portalStats.stats.pools) {
 								  for(var w in portalStats.stats.pools[pool].workers){
@@ -70,7 +69,8 @@ module.exports = function(logger, portalConfig, poolConfigs){
 										}
 										workers[w].balance = (workers[w].balance || 0);
 										workers[w].paid = (workers[w].paid || 0);
-										totalHash += portalStats.statHistory[h].pools[pool].workers[w].hashrate;
+										totalHash += portalStats.stats.pools[pool].workers[w].hashrate;
+										networkSols = portalStats.stats.pools[pool].poolStats.networkSols;
 									  }
 								  }
 								}
