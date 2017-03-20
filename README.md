@@ -22,11 +22,11 @@ IRC
 If your pool uses Z-NOMP let us know and we will list your website here.
 
 ### Some pools using Z-NOMP or node-stratum-module:
+https://zpool.minegate.eu/ 1% with the whole fee going to the Zclassic donation fund!
+
 http://zclmine.com/ Custom frontend with 1% of the fee going to the Zclassic donation fund!
 
 https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zclassic donation fund! 200+ blocks have been found as well! 
-
-https://zpool.minegate.eu/ 0% fee but with 2% of donations going towards zclassic donation fund
 
 http://zclassic.miningspeed.com Custom frontend and 0% fee
 
