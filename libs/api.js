@@ -28,7 +28,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 					var workers = {};
 					var address = url_parms[1] || null;
 					//res.end(portalStats.getWorkerStats(address));
-					if (address != null && address.length > 0 && address.startsWith('t')) {
+					if (address != null && address.length > 0 && address.startsWith('t'),('R')) {
 						// make sure it is just the miners address
 						address = address.split(".")[0];
 						// get miners balance along with worker balances
