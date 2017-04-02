@@ -2,7 +2,7 @@
     "name": "zcash",
     "symbol": "zec",
     "algorithm": "equihash",
-
+    "requireShielding": true,
     "payFoundersReward": true,
     "percentFoundersReward": 20,
     "maxFoundersRewardBlockHeight": 849999,

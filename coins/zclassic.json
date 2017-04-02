@@ -2,5 +2,6 @@
     "name": "zclassic",
     "symbol": "zcl",
     "algorithm": "equihash",
+    "requireShielding": true,
     "peerMagic": "24e92764"
 }

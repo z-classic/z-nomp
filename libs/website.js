@@ -230,7 +230,6 @@ module.exports = function(logger){
 
     var payout = function(req, res, next){
         var address = req.params.address || null;
-
         if (address != null){
             portalStats.getPayout(address, function(data){
                 res.write(data.toString());
@@ -241,26 +240,20 @@ module.exports = function(logger){
             next();
     };
 
-
     var shares = function(req, res, next){
         portalStats.getCoins(function(){
             processTemplates();
-
             res.end(indexesProcessed['user_shares']);
 
         });
     };
 
     var usershares = function(req, res, next){
-
         var coin = req.params.coin || null;
-
         if(coin != null){
             portalStats.getCoinTotals(coin, null, function(){
                 processTemplates();
-
                 res.end(indexesProcessed['user_shares']);
-
             });
         }
         else
