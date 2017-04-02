@@ -2,5 +2,5 @@
     "name": "zdash",
     "symbol": "zdash",
     "algorithm": "equihash",
-     "requireShielding": true
+    "requireShielding": true
 }
