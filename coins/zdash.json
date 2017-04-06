@@ -2,5 +2,6 @@
     "name": "zdash",
     "symbol": "zdash",
     "algorithm": "equihash",
-    "requireShielding": true
+    "requireShielding": true,
+    "txfee": 0.0004
 }

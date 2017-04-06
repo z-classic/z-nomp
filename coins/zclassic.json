@@ -3,5 +3,6 @@
     "symbol": "zcl",
     "algorithm": "equihash",
     "requireShielding": true,
-    "peerMagic": "24e92764"
+    "peerMagic": "24e92764",
+    "txfee": 0.0004
 }
