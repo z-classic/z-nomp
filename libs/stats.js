@@ -354,7 +354,15 @@ module.exports = function(logger, portalConfig, poolConfigs){
 							currentRoundShares: replies[i + 8]
                         };
                         for(var j = replies[i + 10].length; j > 0; j--){
-                            coinStats.payments.push(JSON.parse(replies[i + 10][j-1]));
+                            var jsonObj;
+                            try {
+                                jsonObj = JSON.parse(replies[i + 10][j-1]);
+                            } catch(e) {
+                                jsonObj = null;
+                            }
+                            if (jsonObj !== null) { 
+                                coinStats.payments.push(jsonObj);
+                            }
                         }
 						/*
 						for (var b in coinStats.confirmed.blocks) {
