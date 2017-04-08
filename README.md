@@ -141,7 +141,7 @@ Credits
 ### Z-NOMP
 * [Joshua Yabut / movrcx](https://github.com/joshuayabut)
 * [Aayan L / anarch3](https://github.com/aayanl)
-* [hellcatz / movrcx](https://github.com/hellcatz)
+* [hellcatz / hellcatz](https://github.com/hellcatz)
 
 ### NOMP
 * [Matthew Little / zone117x](https://github.com/zone117x) - developer of NOMP
