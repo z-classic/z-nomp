@@ -138,6 +138,12 @@ the `node-stratum-pool` and `node-multi-hashing` modules, and any config files t
 
 Credits
 -------
+### Z-NOMP
+* [Joshua Yabut / movrcx](https://github.com/joshuayabut)
+* [Aayan L / anarch3](https://github.com/aayanl)
+* [hellcatz / movrcx](https://github.com/hellcatz)
+
+### NOMP
 * [Matthew Little / zone117x](https://github.com/zone117x) - developer of NOMP
 * [Jerry Brady / mintyfresh68](https://github.com/bluecircle) - got coin-switching fully working and developed proxy-per-algo feature
 * [Tony Dobbs](http://anthonydobbs.com) - designs for front-end and created the NOMP logo
