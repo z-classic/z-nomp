@@ -55,7 +55,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var minConfPayout = 10;
 
     var requireShielding = poolOptions.coin.requireShielding === true;
-    var fee = poolOptions.coin.txfee;
+    var fee = parseFloat(poolOptions.coin.txfee) || parseFloat(0.0004);
 
     logger.special(logSystem, logComponent, logComponent + ' requireShielding: ' + requireShielding);
 
