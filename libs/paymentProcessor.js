@@ -409,7 +409,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
     };
 
     var coinsToSatoshies = function(coins){
-        return coins * magnitude;
+        return Math.round(coins * magnitude);
     };
 
     function balanceRound(number) {
@@ -662,12 +662,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 }
                             });
 
-                            fee = fee * 1e8;
+                            var feeSatoshi = fee * magnitude;
 
                             // calculate what the pool owes its miners
                             var totalOwed = parseInt(0);
                             for (var i = 0; i < rounds.length; i++) {
-                                totalOwed = totalOwed + Math.round(rounds[i].reward * magnitude) - fee; // TODO: make tx fees dynamic
+                                totalOwed = totalOwed + Math.round(rounds[i].reward * magnitude) - feeSatoshi; // TODO: make tx fees dynamic
                             }
 
                             var notAddr = null;
