@@ -2,7 +2,7 @@
 
 **[Click here for the official - Zcash® and Zclassic Stratum Mining Pool Installation Guide](https://zdeveloper.org/wiki:z-nomp_install)**
 
-This is a Zclassic mining pool based off of Node Open Mining Portal.
+This is a Equihash mining pool based off of Node Open Mining Portal.
 
 Donations for development are greatly appreciated!
   * BTC: 18vHMxVzotQ9EPyESrf7Z1hNM9AwJeVHgD
@@ -24,13 +24,13 @@ If your pool uses Z-NOMP let us know and we will list your website here.
 ### Some pools using Z-NOMP or node-stratum-module:
 https://zpool.minegate.eu/ 1% with the whole fee going to the Zclassic donation fund!
 
-http://zclmine.com/ Custom frontend
-
 https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zclassic donation fund! 200+ blocks have been found as well! 
 
-http://zclassic.miningspeed.com Custom frontend and 0% fee
-
 http://luckpool.org Zcash Pool with Custom Frontend w/Miner's Jackpot
+
+http://zclmine.com/ Custom frontend
+
+http://zclassic.miningspeed.com Custom frontend and 0% fee
 
 Usage
 =====
@@ -141,7 +141,7 @@ Credits
 ### Z-NOMP
 * [Joshua Yabut / movrcx](https://github.com/joshuayabut)
 * [Aayan L / anarch3](https://github.com/aayanl)
-* [hellcatz / hellcatz](https://github.com/hellcatz)
+* [hellcatz](https://github.com/hellcatz)
 
 ### NOMP
 * [Matthew Little / zone117x](https://github.com/zone117x) - developer of NOMP
