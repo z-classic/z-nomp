@@ -10,7 +10,7 @@
     },
 
     "defaultPoolConfigs": {
-        "blockRefreshInterval": 30,
+        "blockRefreshInterval": 500,
         "jobRebroadcastTimeout": 55,
         "connectionTimeout": 600,
         "emitInvalidBlockHashes": false,
@@ -36,7 +36,7 @@
         "stratumHost": "cryppit.com",
         "stats": {
             "updateInterval": 30,
-            "historicalRetention": 43200,
+            "historicalRetention": 14400,
             "hashrateWindow": 300
         },
         "adminCenter": {

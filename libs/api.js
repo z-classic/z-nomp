@@ -20,6 +20,13 @@ module.exports = function(logger, portalConfig, poolConfigs){
             case 'pool_stats':
                 res.end(JSON.stringify(portalStats.statPoolHistory));
                 return;
+            case 'payments':
+                var poolBlocks = [];
+                for(var pool in portalStats.stats.pools) {
+                    poolBlocks.push({name: pool, pending: portalStats.stats.pools[pool].pending, payments: portalStats.stats.pools[pool].payments});
+                }
+                res.end(JSON.stringify(poolBlocks));
+                return;
 			case 'worker_stats':
 				if (req.url.indexOf("?")>0) {
 				var url_parms = req.url.split("?");
@@ -56,7 +63,6 @@ module.exports = function(logger, portalConfig, poolConfigs){
 										//console.log(portalStats.statHistory[h].time);
 									}
 								}
-								// note, h is the last record from above loop, which is latest
 								for(var pool in portalStats.stats.pools) {
 								  for(var w in portalStats.stats.pools[pool].workers){
 									  if (w.startsWith(address)) {
