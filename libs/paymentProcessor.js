@@ -303,7 +303,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     if (result[0].response.blocks !== null) {
                         finalRedisCommands.push(['hset', coin + ':stats', 'networkBlocks', result[0].response.blocks]);
                         finalRedisCommands.push(['hset', coin + ':stats', 'networkDiff', result[0].response.difficulty]);
-                        finalRedisCommands.push(['hset', coin + ':stats', 'networkSols', result[0].response.networksolps]);
+                        finalRedisCommands.push(['hset', coin + ':stats', 'networkSols', result[0].response.networkhashps]);
                     } else {
                         logger.error(logSystem, logComponent, "Error parse RPC call reponse.blocks tp `getmininginfo`." + JSON.stringify(result[0].response));
                     }
