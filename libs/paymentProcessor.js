@@ -159,8 +159,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
         setupFinished(true);
     }
 
-    async.parallel([validateAddress, validateTAddress, validateZAddress, getBalance], asyncComplete);
-
+    if (requireShielding === true) {
+        async.parallel([validateAddress, validateTAddress, validateZAddress, getBalance], asyncComplete);
+    } else {
+        async.parallel([validateAddress, validateTAddress, getBalance], asyncComplete);
+    }
+    
     //get t_address coinbalance
     function listUnspent (addr, notAddr, minConf, displayBool, callback) {
         if (addr !== null) {
