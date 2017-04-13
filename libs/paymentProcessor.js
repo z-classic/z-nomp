@@ -52,12 +52,13 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var opidCount = 0;
 
     var minConfShield = 3;
-    var minConfPayout = 10;
+    var minConfPayout = 3;
 
     var requireShielding = poolOptions.coin.requireShielding === true;
     var fee = parseFloat(poolOptions.coin.txfee) || parseFloat(0.0004);
 
     logger.special(logSystem, logComponent, logComponent + ' requireShielding: ' + requireShielding);
+    logger.special(logSystem, logComponent, logComponent + ' payments txfee reserve: ' + fee);
 
     var daemon = new Stratum.daemon.interface([processingConfig.daemon], function(severity, message){
         logger[severity](logSystem, logComponent, message);
@@ -159,8 +160,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
         setupFinished(true);
     }
 
-    async.parallel([validateAddress, validateTAddress, validateZAddress, getBalance], asyncComplete);
-
+    if (requireShielding === true) {
+        async.parallel([validateAddress, validateTAddress, validateZAddress, getBalance], asyncComplete);
+    } else {
+        async.parallel([validateAddress, validateTAddress, getBalance], asyncComplete);
+    }
+    
     //get t_address coinbalance
     function listUnspent (addr, notAddr, minConf, displayBool, callback) {
         if (addr !== null) {
@@ -624,8 +629,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 }
 
                                 if (!generationTx){
-                                    logger.error(logSystem, logComponent, 'Missing output details to pool address for transaction '
-                                        + round.txHash);
+                                    logger.error(logSystem, logComponent, 'Missing output details to pool address for transaction ' + round.txHash);
                                     return;
                                 }
 
@@ -678,10 +682,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             // check if we have enough tAddress funds to brgin payment processing
                             listUnspent(null, notAddr, minConfPayout, false, function (error, tBalance){
                                 if (error) {
-                                    logger.error(logSystem, logComponent, 'Error checking pool balance before payouts. (Unable to begin payment process)');
+                                    logger.error(logSystem, logComponent, 'Error checking pool balance before processing payments. (Unable to begin payment process)');
                                     return callback(true);
                                 } else if (tBalance < totalOwed) {
-                                    logger.error(logSystem, logComponent,  'Insufficient pool funds to being payment process; '+(tBalance / magnitude).toFixed(8) + ' < ' + (totalOwed / magnitude).toFixed(8)+'. (Possibly due to pending txs) ');
+                                    logger.error(logSystem, logComponent,  'Insufficient funds to process payments ('+(tBalance / magnitude).toFixed(8) + ' < ' + (totalOwed / magnitude).toFixed(8)+'). Possibly waiting for shielding process.');
                                     return callback(true);
                                 } else {
                                     // zcash daemon does not support account feature
