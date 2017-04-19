@@ -507,16 +507,27 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 return;
                             }                            
                             // look for the invalid duplicate block
-                            var invalidBlocks = [];
+                            var validBlocks = {}; // hashtable for unique look up
+                            var invalidBlocks = []; // array for redis work
                             blocks.forEach(function(block, i) {
                                 if (block && block.result) {
                                     // invalid duplicate submit blocks have negative confirmations
                                     if (block.result.confirmations < 0) {
-                                        logger.warning(logSystem, logComponent, 'Invalid duplicate block ' + block.result.height + ' > ' + block.result.hash);
-                                        // move from blocksPending to blocksDuplicate for debugging...
+                                        logger.warning(logSystem, logComponent, 'Remove invalid duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                        // move from blocksPending to blocksDuplicate...
                                         invalidBlocks.push(['smove', coin + ':blocksPending', coin + ':blocksDuplicate', dups[i].serialized]);
                                     } else {
-                                        logger.debug(logSystem, logComponent, 'Valid duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                        // block must be valid, make sure it is unique
+                                        if (validBlocks.hasOwnProperty(dups[i].blockHash)) {
+                                            // not unique duplicate block
+                                            logger.warning(logSystem, logComponent, 'Remove non-unique duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                            // move from blocksPending to blocksDuplicate...
+                                            invalidBlocks.push(['smove', coin + ':blocksPending', coin + ':blocksDuplicate', dups[i].serialized]);                                            
+                                        } else {
+                                            // keep unique valid block
+                                            validBlocks[dups[i].blockHash] = dups[i].serialized;
+                                            logger.debug(logSystem, logComponent, 'Keep valid duplicate block ' + block.result.height + ' > ' + block.result.hash);
+                                        }
                                     }
                                 }
                             });
