@@ -536,7 +536,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 });
                             } else {
                                 // notify pool owner that we are unable to find the invalid duplicate blocks, manual intervention required...
-                                logger.warning(logSystem, logComponent, 'Found duplicate blocks in pending rounds. Block payments on hold: ' + JSON.stringify(dups));                            
+                                logger.error(logSystem, logComponent, 'Unable to detect invalid duplicate blocks, duplicate block payments on hold.');
                                 // continue payments normally
                                 callback(null, workers, rounds);                                
                             }
