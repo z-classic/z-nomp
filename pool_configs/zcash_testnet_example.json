@@ -23,6 +23,7 @@
         "enabled": false,
         "paymentInterval": 20,
         "minimumPayment": 0.1,
+        "maxBlocksPerPayment": 1,
         "daemon": {
             "host": "127.0.0.1",
             "port": 19332,

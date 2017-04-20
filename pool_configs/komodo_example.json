@@ -30,6 +30,7 @@
         "paymentInterval": 57,
         "_comment_paymentInterval": "Interval in seconds to check and perform payments.",
         "minimumPayment": 0.1,
+        "maxBlocksPerPayment": 3,
         "daemon": {
             "host": "127.0.0.1",
             "port": 8232,
