@@ -58,8 +58,8 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var requireShielding = poolOptions.coin.requireShielding === true;
     var fee = parseFloat(poolOptions.coin.txfee) || parseFloat(0.0004);
 
-    logger.special(logSystem, logComponent, logComponent + ' requireShielding: ' + requireShielding);
-    logger.special(logSystem, logComponent, logComponent + ' payments txfee reserve: ' + fee);
+    logger.debug(logSystem, logComponent, logComponent + ' requireShielding: ' + requireShielding);
+    logger.debug(logSystem, logComponent, logComponent + ' payments txfee reserve: ' + fee);
     logger.debug(logSystem, logComponent, logComponent + ' maxBlocksPerPayment: ' + maxBlocksPerPayment);
 
     var daemon = new Stratum.daemon.interface([processingConfig.daemon], function(severity, message){
