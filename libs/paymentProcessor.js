@@ -494,7 +494,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     // handle duplicates if needed
                     if (duplicateFound) {
                         var dups = rounds.filter(function(round){ return round.duplicate; });
-                        logger.warning(logSystem, logComponent, 'Duplicate submit blocks found: ' + JSON.stringify(dups));
+                        logger.warning(logSystem, logComponent, 'Duplicate pending blocks found: ' + JSON.stringify(dups));
                         // attempt to find the invalid duplicates
                         var rpcDupCheck = dups.map(function(r){
                             return ['getblock', [r.blockHash]];
@@ -505,7 +505,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             if (error || !blocks) {
                                 logger.error(logSystem, logComponent, 'Error with duplicate block check rpc call getblock ' + JSON.stringify(error));
                                 return;
-                            }                            
+                            }
                             // look for the invalid duplicate block
                             var validBlocks = {}; // hashtable for unique look up
                             var invalidBlocks = []; // array for redis work
@@ -690,13 +690,13 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             };
 
                             // limit blocks paid per payment round
-                            var payingBlocks = 1;
+                            var payingBlocks = 0;
                             
                             //filter out all rounds that are immature (not confirmed or orphaned yet)
                             rounds = rounds.filter(function(r){
                                 
                                 // only pay max blocks at a time
-                                if (payingBlocks > maxBlocksPerPayment)
+                                if (payingBlocks >= maxBlocksPerPayment)
                                     return false;
                                 
                                 switch (r.category) {
@@ -722,8 +722,6 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 // only pay generated blocks, not orphaned or kicked
                                 if (rounds[i].category == 'generate') {
                                     totalOwed = totalOwed + Math.round(rounds[i].reward * magnitude) - feeSatoshi;
-                                } else {
-                                    console.log("noPay: " + JSON.stringify(rounds[i]));
                                 }
                             }
 
@@ -738,7 +736,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                     logger.error(logSystem, logComponent, 'Error checking pool balance before processing payments.');
                                     return callback(true);
                                 } else if (tBalance < totalOwed) {
-                                    logger.error(logSystem, logComponent,  'Insufficient funds to process payments for ' + (payingBlocks-1) + ' blocks ('+(tBalance / magnitude).toFixed(8) + ' < ' + (totalOwed / magnitude).toFixed(8)+'). Possibly waiting for shielding process.');
+                                    logger.error(logSystem, logComponent,  'Insufficient funds to process payments for ' + payingBlocks + ' blocks ('+(tBalance / magnitude).toFixed(8) + ' < ' + (totalOwed / magnitude).toFixed(8)+'). Possibly waiting for shielding process.');
                                     return callback(true);
                                 } else {
                                     // zcash daemon does not support account feature
@@ -808,7 +806,6 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(null, workers, rounds, addressAccount);
                 });
             },
-
 
             /* Calculate if any payments are ready to be sent and trigger them sending
              Get balance different for each address and pass it along as object of latest balances such as
