@@ -32,6 +32,8 @@ http://zclmine.com/ Custom frontend
 
 http://zclassic.miningspeed.com Custom frontend and 0% fee
 
+https://zpool.it 0.5% fee
+
 Usage
 =====
 
