@@ -1,4 +1,4 @@
-
+var https = require('https');
 var fs = require('fs');
 var path = require('path');
 
@@ -259,7 +259,7 @@ module.exports = function(logger){
         else
             next();
     };
-	
+
     var route = function(req, res, next){
         var pageId = req.params.page || '';
         if (pageId in indexesProcessed){
@@ -295,7 +295,7 @@ module.exports = function(logger){
     //app.get('/stats/shares', shares);
 	//app.get('/payout/:address', payout);
 	app.get('/workers/:address', minerpage);
-	
+
     app.get('/:page', route);
     app.get('/', route);
 
@@ -327,11 +327,23 @@ module.exports = function(logger){
     });
 
     try {
-        app.listen(portalConfig.website.port, portalConfig.website.host, function () {
+        if (typeof portalConfig.website.tlsOptions !== 'undefined' && !portalConfig.website.tlsOptions.enabled) {
+          app.listen(portalConfig.website.port, portalConfig.website.host, function () {
             logger.debug(logSystem, 'Server', 'Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
-        });
+          });
+        } else {
+            var TLSoptions = {
+              key: fs.readFileSync(portalConfig.website.tlsOptions.key),
+              cert: fs.readFileSync(portalConfig.website.tlsOptions.cert)
+            };
+
+            https.createServer(TLSoptions, app).listen(portalConfig.website.port, portalConfig.website.host, function() {
+                logger.debug(logSystem, 'Server', 'TLS Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
+            });
+        }
     }
     catch(e){
+        console.log(e)
         logger.error(logSystem, 'Server', 'Could not start website on ' + portalConfig.website.host + ':' + portalConfig.website.port
             +  ' - its either in use or you do not have permission');
     }
