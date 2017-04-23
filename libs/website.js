@@ -326,12 +326,8 @@ module.exports = function(logger){
         res.send(500, 'Something broke!');
     });
 
-    try {
-        if (typeof portalConfig.website.tlsOptions !== 'undefined' && !portalConfig.website.tlsOptions.enabled) {
-          app.listen(portalConfig.website.port, portalConfig.website.host, function () {
-            logger.debug(logSystem, 'Server', 'Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
-          });
-        } else {
+    try {        
+        if (portalConfig.website.tlsOptions && portalConfig.website.tlsOptions.enabled === true) {
             var TLSoptions = {
               key: fs.readFileSync(portalConfig.website.tlsOptions.key),
               cert: fs.readFileSync(portalConfig.website.tlsOptions.cert)
@@ -339,7 +335,11 @@ module.exports = function(logger){
 
             https.createServer(TLSoptions, app).listen(portalConfig.website.port, portalConfig.website.host, function() {
                 logger.debug(logSystem, 'Server', 'TLS Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
-            });
+            });        
+        } else {
+          app.listen(portalConfig.website.port, portalConfig.website.host, function () {
+            logger.debug(logSystem, 'Server', 'Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
+          });
         }
     }
     catch(e){
