@@ -35,27 +35,26 @@
     },
     "dependencies": {
         "stratum-pool": "git+https://github.com/z-classic/node-stratum-pool.git",
-        "dateformat": "*",
-        "node-json-minify": "*",
-        "redis": "*",
-        "mysql": "*",
-        "async": "*",
-        "express": "*",
-        "body-parser": "*",
-        "compression": "*",
-        "dot": "*",
-        "colors": "*",
-        "node-watch": "*",
-        "request": "*",
-        "nonce": "*",
-        "bignum": "*",
-        "extend": "*"
+        "dateformat": "2.0.0",
+        "node-json-minify": "1.0.0",
+        "redis": "2.7.1",
+        "mysql": "2.13.0",
+        "async": "2.3.0",
+        "express": "4.15.2",
+        "body-parser": "1.17.1",
+        "compression": "1.6.2",
+        "dot": "1.1.1",
+        "colors": "1.1.2",
+        "node-watch": "0.5.2",
+        "request": "2.81.0",
+        "nonce": "1.0.4",
+        "bignum": "0.12.5",
+        "extend": "3.0.0"
     },
     "engines": {
         "node": ">=0.10"
     },
-    "scripts": { 
+    "scripts": {
          "start": "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/node_modules/stratum-pool/node_modules/equihashverify/build/Release/:$PWD/node_modules/equihashverify/build/Release/ node init.js"
     }
 }
-
