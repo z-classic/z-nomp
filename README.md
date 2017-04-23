@@ -17,12 +17,11 @@ Usage of this software requires abilities with sysadmin, database admin, coin da
 
 ### Community / Support
 IRC
-* Support / general discussion join: https://rocketchat.zdeveloper.org
+* Support / general discussion join: https://gitter.im/zclassicorg/z-nomp
 
 If your pool uses Z-NOMP let us know and we will list your website here.
 
 ### Some pools using Z-NOMP or node-stratum-module:
-https://zpool.minegate.eu/ 1% with the whole fee going to the Zclassic donation fund!
 
 https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zclassic donation fund! 200+ blocks have been found as well! 
 
