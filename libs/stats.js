@@ -591,13 +591,13 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
     };
 
-	function sortBlocks(a, b) {
-		var as = a.split(":");
-		var bs = b.split(":");
-		if (as[2] > bs[2]) return -1;
-		if (as[2] < bs[2]) return 1;
-		return 0;
-	}
+    function sortBlocks(a, b) {
+        var as = parseInt(a.split(":")[2]);
+        var bs = parseInt(b.split(":")[2]);
+        if (as > bs) return -1;
+        if (as < bs) return 1;
+        return 0;
+    }
 	
 	function sortWorkersByName(objects) {
 		var newObject = {};
