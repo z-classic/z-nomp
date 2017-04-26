@@ -818,6 +818,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
                 var trySend = function (withholdPercent) {
                     var addressAmounts = {};
+                    var balanceAmounts = {};
                     var minerTotals = {};
                     var totalSent = 0;
                     var totalShares = 0;
@@ -857,6 +858,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         else {
                             worker.balanceChange = Math.max(toSend - worker.balance, 0);
                             worker.sent = 0;
+                            // track balance changes
+                            if (balanceAmounts[address] != null && balanceAmounts[address] > 0) {
+                                balanceAmounts[address] = balanceRound(balanceAmounts[address] + worker.balanceChange);
+                            } else {
+                                balanceAmounts[address] = worker.balanceChange;
+                            }
                         }
                     }
 
@@ -935,7 +942,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                     return parseInt(r.height);
                                 });
                                 var paymentsUpdate = [];
-                                var paymentsData = {time:Date.now(), txid:txid, shares:totalShares, paid:balanceRound(totalSent / magnitude),  miners:Object.keys(addressAmounts).length, blocks: paymentBlocks, amounts: addressAmounts};
+                                var paymentsData = {time:Date.now(), txid:txid, shares:totalShares, paid:balanceRound(totalSent / magnitude),  miners:Object.keys(addressAmounts).length, blocks: paymentBlocks, amounts: addressAmounts, balances: balanceAmounts};
                                 paymentsUpdate.push(['zadd', logComponent + ':payments', Date.now(), JSON.stringify(paymentsData)]);
                                 startRedisTimer();
                                 redisClient.multi(paymentsUpdate).exec(function(error, payments){
