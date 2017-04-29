@@ -26,6 +26,16 @@ module.exports = function(logger, poolConfig){
     var logComponent = coin;
     var logSubCat = 'Thread ' + (parseInt(forkId) + 1);
 
+    function roundTo(n, digits) {
+        if (digits === undefined) {
+            digits = 0;
+        }
+        var multiplicator = Math.pow(10, digits);
+        n = parseFloat((n * multiplicator).toFixed(11));
+        var test =(Math.round(n) / multiplicator);
+        return +(test.toFixed(digits));
+    }
+    
     var connection = redis.createClient(redisConfig.port, redisConfig.host);
 
     connection.on('ready', function(){
@@ -86,7 +96,7 @@ module.exports = function(logger, poolConfig){
             if (_lastShareTimes[shareData.worker] != null && _lastShareTimes[shareData.worker] > 0)
                 lastShareTime = _lastShareTimes[shareData.worker];
             
-            var timeChangeSec = Math.round(Math.max(now - lastShareTime, 0) / 1000);
+            var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 3);
             // if its been less than 10 minutes since last share was submitted
             if (timeChangeSec < 600) {
                 redisCommands.push(['hincrbyfloat', coin + ':shares:timesCurrent', shareData.worker, timeChangeSec]);
