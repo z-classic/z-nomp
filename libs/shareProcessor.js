@@ -95,13 +95,13 @@ module.exports = function(logger, poolConfig){
             var lastShareTime = now;
             if (_lastShareTimes[shareData.worker] != null && _lastShareTimes[shareData.worker] > 0)
                 lastShareTime = _lastShareTimes[shareData.worker];
-            
-            var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 3);
+
             // if its been less than 10 minutes since last share was submitted
+            var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 3);
             if (timeChangeSec < 600) {
                 redisCommands.push(['hincrbyfloat', coin + ':shares:timesCurrent', shareData.worker, timeChangeSec]);
             }
-            
+
             // track last time share
             _lastShareTimes[shareData.worker] = now;
         }
@@ -118,7 +118,7 @@ module.exports = function(logger, poolConfig){
             redisCommands.push(['rename', coin + ':shares:timesCurrent', coin + ':shares:times' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height, shareData.worker, dateNow].join(':')]);
             redisCommands.push(['hincrby', coin + ':stats', 'validBlocks', 1]);            
-            // reset pplnt share times
+            // reset pplnt share times for next round
             _lastShareTimes = {};
         }
         else if (shareData.blockHash){
