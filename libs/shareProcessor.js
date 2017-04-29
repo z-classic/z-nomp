@@ -86,13 +86,14 @@ module.exports = function(logger, poolConfig){
             if (_lastShareTimes[shareData.worker] != null && _lastShareTimes[shareData.worker] > 0)
                 lastShareTime = _lastShareTimes[shareData.worker];
             
-            _lastShareTimes[shareData.worker] = now;
-            
             var timeChangeSec = Math.round(Math.max(now - lastShareTime, 0) / 1000);
             // if its been less than 10 minutes since last share was submitted
             if (timeChangeSec < 600) {
                 redisCommands.push(['hincrbyfloat', coin + ':shares:timesCurrent', shareData.worker, timeChangeSec]);
             }
+            
+            // track last time share
+            _lastShareTimes[shareData.worker] = now;
         }
         
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
