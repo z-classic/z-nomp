@@ -64,19 +64,37 @@ module.exports = function(logger, poolConfig){
             logger.error(logSystem, logComponent, logSubCat, "You're using redis version " + versionString + " the minimum required version is 2.6. Follow the damn usage instructions...");
         }
     });
+    
+    var _lastShareTimes = {};
 
-
-    this.handleShare = function(isValidShare, isValidBlock, shareData){
+    this.handleShare = function(isValidShare, isValidBlock, shareData) {
 
         var redisCommands = [];
 
-        if (isValidShare){
+        if (isValidShare) {
             redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
         }
         else{
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
+        
+        // pplnt time share tracking of workers
+        if (isValidShare || isValidBlock) {
+            var now = Date.now();
+            var lastShareTime = now;
+            if (_lastShareTimes[shareData.worker] != null && _lastShareTimes[shareData.worker] > 0)
+                lastShareTime = _lastShareTimes[shareData.worker];
+            
+            _lastShareTimes[shareData.worker] = now;
+            
+            var timeChangeSec = Math.round(Math.max(now - lastShareTime, 0) / 1000);
+            // if its been less than 10 minutes since last share was submitted
+            if (timeChangeSec < 600) {
+                redisCommands.push(['hincrbyfloat', coin + ':shares:timesCurrent', shareData.worker, timeChangeSec]);
+            }
+        }
+        
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
            doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
            generate hashrate for each worker and pool. */
@@ -86,8 +104,11 @@ module.exports = function(logger, poolConfig){
 
         if (isValidBlock){
             redisCommands.push(['rename', coin + ':shares:roundCurrent', coin + ':shares:round' + shareData.height]);
+            redisCommands.push(['rename', coin + ':shares:timesCurrent', coin + ':shares:times' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height, shareData.worker, dateNow].join(':')]);
-            redisCommands.push(['hincrby', coin + ':stats', 'validBlocks', 1]);
+            redisCommands.push(['hincrby', coin + ':stats', 'validBlocks', 1]);            
+            // reset pplnt share times
+            _lastShareTimes = {};
         }
         else if (shareData.blockHash){
             redisCommands.push(['hincrby', coin + ':stats', 'invalidBlocks', 1]);
