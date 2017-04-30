@@ -10,8 +10,7 @@
         border: solid 1px #c7c7c7;
         border-radius: 5px;
         padding: 5px;
-        /*margin-bottom: 18px;*/
-        margin: auto;
+        margin-bottom: 18px;
     }
     .chartLabel{
         font-size: 1.2em;
@@ -19,7 +18,7 @@
         padding: 4px;
     }
     .chartHolder{
-        margin: auto;
+
     }
 
 	#boxesLower {
@@ -69,6 +68,22 @@
     }
     .boxStatsList > div > div{
         padding: 3px;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 60px;
+        height: 28px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+    #tooltip.hidden {
+        opacity: 0;
     }
 </style>
 
@@ -178,8 +193,9 @@
 
 <center><div id="bottomCharts" style="text-align:center;" align="center">
     <div class="chartWrapper" style="text-align:center;">
-        <div class="chartLabel">Founders of recent blocks</div>
-        <div class="chartHolder"><svg id="blocksPie" style="display: block; margin: auto; text-align:center;"/></div>
+        <div class="chartLabel">Founders of the last {{=blockscomb.length}} blocks</div>
+        <div class="hidden" id="tooltip"><p><span id="value"></span> blocks found by <span id="finderr"></span></p></div>
+        <div class="chartHolder" id="pie"><svg id="blocksPie" style="display: block; margin: auto; text-align:center;"/></div>
     </div>
 </div></center>
 {{ } }}
@@ -214,7 +230,10 @@
     var legendSpacing = 5;
 
     var color = d3.scale.category20c();
-    console.log(d3.scale)
+    var div = d3.select("#pie").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
     var vis = d3.select('#blocksPie')
         .data([data])
         .attr("width", 1000)
@@ -224,13 +243,36 @@
         .append("svg:g")
         .attr("transform", "translate(" + r + "," + r + ")");
 
+
     var pie = d3.layout.pie().value(function(d){return d.value;});
 
     // declare an arc generator function
     var arc = d3.svg.arc().outerRadius(r);
 
     // select paths, use arc generator to draw
-    var arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+    var arcs = vis.selectAll("g.slice")
+        .data(pie)
+        .enter()
+        .append("svg:g")
+        .attr("class", "slice")
+        .on("mouseover", function(d, i){
+            d3.select("#tooltip")
+                .style("left", d3.event.pageX + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("opacity", 1)
+                .select("#value")
+                    .text(data[i].value);
+            d3.select("#tooltip")
+                .select("#finderr")
+                    .text(data[i].label);
+        })
+        .on("mouseout", function(d) {
+            d3.select("#tooltip")
+                .transition()
+                    .duration(500)
+                    .style("opacity", 0);
+        });
+
     arcs.append("svg:path")
         .attr("fill", function(d, i){
           return color(i);
