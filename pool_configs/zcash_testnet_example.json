@@ -21,6 +21,8 @@
 
     "paymentProcessing": {
         "enabled": false,
+        "paymentMode": "prop",
+        "_comment_paymentMode":"prop, pplnt",
         "paymentInterval": 20,
         "minimumPayment": 0.1,
         "maxBlocksPerPayment": 1,
