@@ -20,7 +20,7 @@
     .chartHolder{
 
     }
-	
+
 	#boxesLower {
         margin: 0 9px;
     }
@@ -69,7 +69,24 @@
     .boxStatsList > div > div{
         padding: 3px;
     }
+
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 60px;
+        height: 28px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+    #tooltip.hidden {
+        opacity: 0;
+    }
 </style>
+
 <div id="topCharts">
     <div class="chartWrapper">
         <div class="chartLabel">Pool Historical Hashrate</div>
@@ -109,9 +126,8 @@
     </div>
 	{{ } }}
 </div>
-
 {{ for(var pool in it.stats.pools) { }}
-{{ var paidJackpots = parseFloat(it.stats.pools[pool].poolStats.validBlocks) * 1.0; }}
+{{ var blockscomb = new Array; }}
 <div class="pure-g-r" id="boxesLower">
     <div class="pure-u-1-1">
         <div class="boxStats" id="boxStatsRight">
@@ -122,6 +138,7 @@
 			</div>
             <div class="boxStatsList" style="margin-top: 9px;">
 			<!--<div id="{{=it.stats.pools[pool].name}}NewBlocks"></div>-->
+
 			{{ for(var b in it.stats.pools[pool].pending.blocks) { }}
 			{{ var block = it.stats.pools[pool].pending.blocks[b].split(":"); }}
 				<div style="margin-bottom: 9px; background-color: #eeeeee; min-width:600px;"><i class="fa fa-bars"></i>
@@ -134,7 +151,7 @@
 						{{=block[2]}}
 					{{ } }}
 					{{if (block[4] != null) { }}
-					<span style="padding-left: 18px;"><small>{{=readableDate(block[4])}}</small></span>	
+					<span style="padding-left: 18px;"><small>{{=readableDate(block[4])}}</small></span>
 					{{ } }}
                     {{if (it.stats.pools[pool].pending.confirms[block[0]]) { }}
 					<span style="float:right; color: red;"><small>{{=it.stats.pools[pool].pending.confirms[block[0]]}} of 100</small></span>
@@ -143,6 +160,7 @@
                     {{ } }}
 					<div><i class="fa fa-gavel"></i><small>Mined By:</small> <a href="/workers/{{=block[3].split('.')[0]}}">{{=block[3]}}</a></div>
 				</div>
+        {{ blockscomb.push(block);}}
 			{{ } }}
 			{{ var i=0; for(var b in it.stats.pools[pool].confirmed.blocks) { }}
 			{{ if (i < 8) { i++; }}
@@ -157,23 +175,141 @@
 						{{=block[2]}}
 					{{ } }}
 					{{if (block[4] != null) { }}
-					<span style="padding-left: 18px;"><small>{{=readableDate(block[4])}}</small></span>	
+					<span style="padding-left: 18px;"><small>{{=readableDate(block[4])}}</small></span>
 					{{ } }}
 					<span style="float:right; padding-left: 18px; color: green;"><small>*PAID*</small></span>
 					<div><i class="fa fa-gavel"></i><small>Mined By:</small> <a href="/workers/{{=block[3].split('.')[0]}}">{{=block[3]}}</a></div>
 				</div>
+        {{blockscomb.push(block);}}
 			{{ } }}
 			{{ } }}
+      <!--{{=JSON.stringify(blockscomb)}}-->
+      <script>
+      var blockscomb = ({{=JSON.stringify(blockscomb)}})
+      </script>
 			</div>
       </div>
         </div>
     </div>
 </div>
+
+<center><div id="bottomCharts{{=pool}}" style="text-align:center;" align="center">
+    <div class="chartWrapper" style="text-align:center;">
+        <div class="chartLabel">Finders of the last {{=blockscomb.length}} blocks</div>
+        <div class="hidden" id="tooltip{{=pool}}"><p><span id="value{{=pool}}"></span> blocks found by <span id="finderr{{=pool}}"></span></p></div>
+        <div class="chartHolder" id="pie{{=pool}}"><svg id="blocksPie{{=pool}}" style="display: block; margin: auto; text-align:center;"/></div>
+    </div>
+</div></center>
+
+<script>
+
+var groupedByFinder = {};
+var data = [];
+
+for (var i=0; i < blockscomb.length; i++) {
+    finder=blockscomb[i][3]; // if other doesn 't already have a property for the current letter
+    // create it and assign it to a new empty array
+    if (!(finder in groupedByFinder))
+        groupedByFinder[finder] = [];
+
+    groupedByFinder[finder].push(blockscomb[i]);
+}
+
+Object.keys(groupedByFinder).forEach(function(i) {
+    var obj = {};
+    obj.label = i
+    obj.value = groupedByFinder[i].length
+    data.push(obj)
+});
+
+console.log(JSON.stringify(data))
+
+var w = 400;
+var h = 400;
+var r = h/2;
+var legendRectSize = 18;
+var legendSpacing = 5;
+
+var color = d3.scale.category20c();
+var div = d3.select("#pie{{=pool}}").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+var vis = d3.select('#blocksPie{{=pool}}')
+    .data([data])
+    .attr("width", 1000)
+    .attr("height", h)
+    .attr("style", "display: block; margin: auto;")
+    .attr("preserveAspectRatio", "xMidYMin")
+    .append("svg:g")
+    .attr("transform", "translate(" + r + "," + r + ")");
+
+
+var pie = d3.layout.pie().value(function(d){return d.value;});
+
+// declare an arc generator function
+var arc = d3.svg.arc().outerRadius(r);
+
+// select paths, use arc generator to draw
+var arcs = vis.selectAll("g.slice{{=pool}}")
+    .data(pie)
+    .enter()
+    .append("svg:g")
+        .attr("class", "slice{{=pool}}")
+        .attr("id", "slice")
+        .on("mouseover", function(d){
+            d3.select("#tooltip{{=pool}}")
+                .style("left", d3.event.pageX + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("opacity", 1)
+                .select("#value{{=pool}}")
+                    .text(d.data.value);
+            d3.select("#tooltip{{=pool}}")
+                .select("#finderr{{=pool}}")
+                    .text(d.data.label);
+        });
+
+arcs.append("svg:path")
+    .attr("fill", function(d, i){
+      return color(i);
+    })
+    .attr("d", function (d) {
+      return arc(d);
+    });
+
+var legend = vis.selectAll('.legend')
+    .data(color.domain())
+    .enter()
+    .append('g')
+    .attr('class', 'legend')
+    .attr('id', {{=JSON.stringify(pool)}})
+    .attr('transform', function(d, i) {
+          var height = legendRectSize + legendSpacing;
+          var offset = height * color.domain().length / 2;
+          var horz = 12 * legendRectSize;
+          var vert = i * height;
+          return 'translate(' + horz + ',' + vert + ')';
+    });
+
+legend.append('rect')
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+    .style('fill', color)
+    .style('stroke', color);
+
+legend.append('text')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function(d, i) {
+        return data[i].label;
+    });
+</script>
 {{ } }}
 
 <script>
     document.querySelector('main').appendChild(document.createElement('script')).src = '/static/stats.js';
 </script>
+
 
 <script>
 	window.statsSource = new EventSource("/api/live_stats");
@@ -187,7 +323,7 @@
 				$('#statsHashrateAvg' + pool).text(getReadableHashRateString(calculateAverageHashrate(pool)));
 				$('#statsLuckDays' + pool).text(stats.pools[pool].luckDays);
 				$('#statsValidBlocks' + pool).text(stats.pools[pool].poolStats.validBlocks);
-				$('#statsTotalPaid' + pool).text((parseFloat(stats.pools[pool].poolStats.totalPaid)+paidJackpots).toFixed(8));
+				$('#statsTotalPaid' + pool).text((parseFloat(stats.pools[pool].poolStats.totalPaid)).toFixed(8));
 				$('#statsNetworkBlocks' + pool).text(stats.pools[pool].poolStats.networkBlocks);
 				$('#statsNetworkDiff' + pool).text(stats.pools[pool].poolStats.networkDiff);
 				$('#statsNetworkSols' + pool).text(getReadableNetworkHashRateString(stats.pools[pool].poolStats.networkSols));
@@ -195,7 +331,7 @@
             }
         });
     });
-		
+
 	function getReadableNetworkHashRateString(hashrate){
 		hashrate = (hashrate * 1000000);
 		if (hashrate < 1000000)

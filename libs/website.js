@@ -1,4 +1,4 @@
-
+var https = require('https');
 var fs = require('fs');
 var path = require('path');
 
@@ -95,13 +95,13 @@ module.exports = function(logger){
     };
 
 
-    //If an html file was changed reload it
-    watch('website', function(filename){
+    // if an html file was changed reload it
+    /* requires node-watch 0.5.0 or newer */
+    watch(['./website', './website/pages'], function(evt, filename){
         var basename = path.basename(filename);
         if (basename in pageFiles){
-            console.log(filename);
             readPageFiles([basename]);
-            logger.debug(logSystem, 'Server', 'Reloaded file ' + basename);
+            logger.special(logSystem, 'Server', 'Reloaded file ' + basename);
         }
     });
 
@@ -259,7 +259,7 @@ module.exports = function(logger){
         else
             next();
     };
-	
+
     var route = function(req, res, next){
         var pageId = req.params.page || '';
         if (pageId in indexesProcessed){
@@ -295,7 +295,7 @@ module.exports = function(logger){
     //app.get('/stats/shares', shares);
 	//app.get('/payout/:address', payout);
 	app.get('/workers/:address', minerpage);
-	
+
     app.get('/:page', route);
     app.get('/', route);
 
@@ -326,12 +326,24 @@ module.exports = function(logger){
         res.send(500, 'Something broke!');
     });
 
-    try {
-        app.listen(portalConfig.website.port, portalConfig.website.host, function () {
+    try {        
+        if (portalConfig.website.tlsOptions && portalConfig.website.tlsOptions.enabled === true) {
+            var TLSoptions = {
+              key: fs.readFileSync(portalConfig.website.tlsOptions.key),
+              cert: fs.readFileSync(portalConfig.website.tlsOptions.cert)
+            };
+
+            https.createServer(TLSoptions, app).listen(portalConfig.website.port, portalConfig.website.host, function() {
+                logger.debug(logSystem, 'Server', 'TLS Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
+            });        
+        } else {
+          app.listen(portalConfig.website.port, portalConfig.website.host, function () {
             logger.debug(logSystem, 'Server', 'Website started on ' + portalConfig.website.host + ':' + portalConfig.website.port);
-        });
+          });
+        }
     }
     catch(e){
+        console.log(e)
         logger.error(logSystem, 'Server', 'Could not start website on ' + portalConfig.website.host + ':' + portalConfig.website.port
             +  ' - its either in use or you do not have permission');
     }
