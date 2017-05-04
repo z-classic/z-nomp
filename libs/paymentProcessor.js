@@ -736,6 +736,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 }
                                 // account feature not implemented at this time
                                 addressAccount = "";
+                                // begin payments for generated coins
                                 callback(null, workers, rounds, addressAccount);
                             });
                         });
@@ -945,32 +946,39 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return;
                     }
                     
-                    // perform the sendmany operation
+                    // POINT OF NO RETURN! GOOD LUCK!
+                    // WE ARE SENDING PAYMENT CMD TO DAEMON
+                    
+                    // perform the sendmany operation .. addressAccount
                     daemon.cmd('sendmany', ["", addressAmounts], function (result) {
                         // check for failed payments, there are many reasons
                         if (result.error && result.error.code === -6) {
-                            // not enough minerals...
-                            var higherPercent = withholdPercent + 0.01;
-                            logger.warning(logSystem, logComponent, 'Not enough funds to cover the tx fees for sending out payments, decreasing rewards by '
-                                + (higherPercent * 100) + '% and retrying');
-
+                            // we thought we had enough funds to send payments, but apparently not...
+                            // try decreasing payments by a small percent to cover unexpected tx fees?
+                            var higherPercent = withholdPercent + 0.001;
+                            logger.warning(logSystem, logComponent, 'Not enough funds to cover the tx fees for sending out payments, decreasing rewards by ' + (higherPercent * 100) + '% and retrying');
                             trySend(higherPercent);
+                            //callback(true); not a complete failure...
+                            return;
                         }
                         else if (result.error && result.error.code === -5) {
                             // invalid address specified in addressAmounts array
                             logger.error(logSystem, logComponent, 'Error sending payments ' + result.error.message);
+                            // payment failed, prevent updates to redis
                             callback(true);
                             return;
                         }
                         else if (result.error && result.error.message != null) {
-                            // unknown error from daemon
+                            // error from daemon
                             logger.error(logSystem, logComponent, 'Error sending payments ' + result.error.message);
+                            // payment failed, prevent updates to redis
                             callback(true);
                             return;
                         }
                         else if (result.error) {
-                            // some other unknown error
+                            // unknown error
                             logger.error(logSystem, logComponent, 'Error sending payments ' + JSON.stringify(result.error));
+                            // payment failed, prevent updates to redis
                             callback(true);
                             return;
                         }
