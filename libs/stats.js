@@ -344,7 +344,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                             /* show all pending blocks */
 							pending: {
 								blocks: replies[i + 6].sort(sortBlocks),
-                                confirms: replies[i + 9]
+                                confirms: (replies[i + 9] || {})
 							},
                             /* show last 5 found blocks */
 							confirmed: {
