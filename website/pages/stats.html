@@ -153,11 +153,15 @@
 					{{if (block[4] != null) { }}
 					<span style="padding-left: 18px;"><small>{{=readableDate(block[4])}}</small></span>
 					{{ } }}
-                    {{if (it.stats.pools[pool].pending.confirms[block[0]]) { }}
-					<span style="float:right; color: red;"><small>{{=it.stats.pools[pool].pending.confirms[block[0]]}} of 100</small></span>
-                    {{ } else { }}
-                    <span style="float:right; color: red;"><small>*PENDING*</small></span>
-                    {{ } }}
+					{{if (it.stats.pools[pool].pending.confirms) { }}
+					    {{if (it.stats.pools[pool].pending.confirms[block[0]]) { }}
+						<span style="float:right; color: red;"><small>{{=it.stats.pools[pool].pending.confirms[block[0]]}} of 100</small></span>
+					    {{ } else { }}
+						<span style="float:right; color: red;"><small>*PENDING*</small></span>
+					    {{ } }}
+					{{ } else { }}
+					    <span style="float:right; color: red;"><small>*PENDING*</small></span>
+					{{ } }}
 					<div><i class="fa fa-gavel"></i><small>Mined By:</small> <a href="/workers/{{=block[3].split('.')[0]}}">{{=block[3]}}</a></div>
 				</div>
         {{ blockscomb.push(block);}}
