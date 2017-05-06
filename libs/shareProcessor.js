@@ -84,8 +84,7 @@ module.exports = function(logger, poolConfig){
         if (isValidShare) {
             redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
-        }
-        else{
+        } else {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
         
@@ -94,19 +93,18 @@ module.exports = function(logger, poolConfig){
             var now = Date.now();
             var lastShareTime = now;
             var workerAddress = shareData.worker.split('.')[0];
-            if (_lastShareTimes[workerAddress] != null && _lastShareTimes[workerAddress] > 0)
+            if (_lastShareTimes[workerAddress] != null && _lastShareTimes[workerAddress] > 0) {
                 lastShareTime = _lastShareTimes[workerAddress];
-
+            }
             // if its been less than 10 minutes since last share was submitted
             var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 3);
             if (timeChangeSec < 600) {
                 redisCommands.push(['hincrbyfloat', coin + ':shares:timesCurrent', workerAddress, timeChangeSec]);
             }
-            
             // track last time share
             _lastShareTimes[workerAddress] = now;
         }
-        
+
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
            doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
            generate hashrate for each worker and pool. */
@@ -130,8 +128,6 @@ module.exports = function(logger, poolConfig){
             if (err)
                 logger.error(logSystem, logComponent, logSubCat, 'Error with share processor multi ' + JSON.stringify(err));
         });
-
-
     };
 
 };
