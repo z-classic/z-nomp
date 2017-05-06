@@ -1,4 +1,5 @@
 var fs = require('fs');
+var request = require('request');
 
 var redis = require('redis');
 var async = require('async');
@@ -59,6 +60,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var pplntEnabled = processingConfig.paymentMode === "pplnt" || false;
     var pplntTimeQualify = processingConfig.pplnt || 0.51; // 51%
     
+    var getMarketStats = poolOptions.coin.getMarketStats === true;
     var requireShielding = poolOptions.coin.requireShielding === true;
     var fee = parseFloat(poolOptions.coin.txfee) || parseFloat(0.0004);
 
@@ -298,6 +300,36 @@ function SetupForPool(logger, poolOptions, setupFinished){
             }
         );
     }
+    
+    // TODO, this needs to be moved out of payments processor
+    function cacheMarketStats() {
+        var marketStatsUpdate = [];
+        var coin = logComponent.replace('_testnet', '');
+        request('https://api.coinmarketcap.com/v1/ticker/'+coin+'/', function (error, response, body) {
+            if (error) {
+                console.log(JSON.stringify(error));
+                return;
+            }
+            if (response && response.statusCode) {
+                if (response.statusCode == 200) {
+                    if (body) {
+                        var data = JSON.parse(body);
+                        if (data.length > 0) {
+                            marketStatsUpdate.push(['hset', coin + ':stats', 'coinmarketcap', JSON.stringify(data)]);
+                            redisClient.multi(marketStatsUpdate).exec(function(err, results){
+                                if (err){
+                                    logger.error(logSystem, logComponent, 'Error update coin market stats to redis ' + JSON.stringify(err));
+                                    return;
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    logger.error(logSystem, logComponent, 'Error returned from coinmarketcap ' + JSON.stringify(response));
+                }
+            }
+        });
+    }
 
     // TODO, this needs to be moved out of payments processor
     function cacheNetworkStats () {
@@ -368,6 +400,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
         }
         // update network stats using coin daemon
         cacheNetworkStats();
+        // update market stats using coinmarketcap
+        if (getMarketStats === true) {
+            cacheMarketStats();
+        }
     }, interval);
 
     // check operation statuses every x seconds
