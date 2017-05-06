@@ -317,6 +317,12 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 else{
                     for(var i = 0; i < replies.length; i += commandsPerCoin){
                         var coinName = client.coins[i / commandsPerCoin | 0];
+                        var marketStats = {};
+                        if (replies[i + 2]) {
+                            if (replies[i + 2].coinmarketcap) {
+                                marketStats = replies[i + 2] ? (JSON.parse(replies[i + 2].coinmarketcap)[0] || 0) : 0;
+                            }
+                        }
                         var coinStats = {
                             name: coinName,
                             symbol: poolConfigs[coinName].coin.symbol.toUpperCase(),
@@ -335,6 +341,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 networkVersion: replies[i + 2] ? (replies[i + 2].networkSubVersion || 0) : 0,
                                 networkProtocolVersion: replies[i + 2] ? (replies[i + 2].networkProtocolVersion || 0) : 0
                             },
+                            marketStats: marketStats,
                             /* block stat counts */
                             blocks: {
                                 pending: replies[i + 3],
@@ -364,17 +371,10 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 coinStats.payments.push(jsonObj);
                             }
                         }
-						/*
-						for (var b in coinStats.confirmed.blocks) {
-							var parms = coinStats.confirmed.blocks[b].split(':');
-							if (parms[4] != null && parms[4] > 0) {
-								console.log(fancyTimestamp(parseInt(parms[4]), true));
-							}
-							break;
-						}
-						*/
                         allCoinStats[coinStats.name] = (coinStats);
                     }
+                    // sort pools alphabetically
+                    allCoinStats = sortPoolsByName(allCoinStats);
                     callback();
                 }
             });
@@ -591,6 +591,17 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
     };
 
+    function sortPoolsByName(objects) {
+		var newObject = {};
+		var sortedArray = sortProperties(objects, 'name', false, false);
+		for (var i = 0; i < sortedArray.length; i++) {
+			var key = sortedArray[i][0];
+			var value = sortedArray[i][1];
+			newObject[key] = value;
+		}
+		return newObject;
+    }
+    
     function sortBlocks(a, b) {
         var as = parseInt(a.split(":")[2]);
         var bs = parseInt(b.split(":")[2]);
