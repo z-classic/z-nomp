@@ -50,9 +50,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var logSystem = 'Payments';
     var logComponent = coin;
     var opidCount = 0;
-
-    var minConfShield = 3;
-    var minConfPayout = 3;
+    
+    // zcash team recommends 10 confirmations for safety from orphaned blocks
+    var minConfShield = Math.max((processingConfig.minConf || 10), 3);
+    var minConfPayout = Math.max((processingConfig.minConf || 10), 3);
     
     var maxBlocksPerPayment = processingConfig.maxBlocksPerPayment || 3;
     
@@ -382,32 +383,37 @@ function SetupForPool(logger, poolOptions, setupFinished){
     }
 
     // run coinbase coin transfers every x minutes
-    var intervalState = 0; // do not send ZtoT and TtoZ and same time, this results in operation failed!
-    var interval = poolOptions.walletInterval * 60 * 1000; // run every x minutes
-    setInterval(function() {
-        // shielding not required for some equihash coins
-        if (requireShielding === true) {
-            intervalState++;
-            switch (intervalState) {
+    var shieldIntervalState = 0; // do not send ZtoT and TtoZ and same time, this results in operation failed!
+    var shielding_interval = poolOptions.walletInterval * 60 * 1000; // run every x minutes
+    // shielding not required for some equihash coins
+    if (requireShielding === true) {
+        var shieldInterval = setInterval(function() {
+            shieldIntervalState++;
+            switch (shieldIntervalState) {
                 case 1:
                     listUnspent(poolOptions.address, null, minConfShield, false, sendTToZ);
                     break;
                 default:
                     listUnspentZ(poolOptions.zAddress, minConfShield, false, sendZToT);
-                    intervalState = 0;
+                    shieldIntervalState = 0;
                     break;
             }
-        }
+        }, shielding_interval);
+    }
+    
+    // stats caching every 58 seconds
+    var stats_interval = 58 * 1000;
+    var statsInterval = setInterval(function() {
         // update network stats using coin daemon
         cacheNetworkStats();
         // update market stats using coinmarketcap
         if (getMarketStats === true) {
             cacheMarketStats();
         }
-    }, interval);
+    }, stats_interval);
 
-    // check operation statuses every x seconds
-    var opid_interval =  poolOptions.walletInterval * 1000;
+    // check operation statuses every 57 seconds
+    var opid_interval =  57 * 1000;
     // shielding not required for some equihash coins
     if (requireShielding === true) {
         var checkOpids = function() {
