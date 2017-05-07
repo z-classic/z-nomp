@@ -308,7 +308,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
         var coin = logComponent.replace('_testnet', '');
         request('https://api.coinmarketcap.com/v1/ticker/'+coin+'/', function (error, response, body) {
             if (error) {
-                console.log(JSON.stringify(error));
+                logger.error(logSystem, logComponent, 'Error getting coin market stats from CoinMarketCap ' + JSON.stringify(err));
                 return;
             }
             if (response && response.statusCode) {
@@ -876,7 +876,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                         totalShares += shares;
                                     }
                                     
-                                    console.log('--REWARD DEBUG--------------');
+                                    //console.log('--REWARD DEBUG--------------');
                                     // calculate rewards for round
                                     var totalAmount = 0;
                                     for (var workerAddress in workerShares){
@@ -893,16 +893,15 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                         worker.reward = (worker.reward || 0) + workerRewardTotal;
                                         // add to total amount sent to all workers
                                         totalAmount += worker.reward;
-                                        
-                                        console.log('rewardAmount: '+workerAddress+' '+workerRewardTotal);
-                                        console.log('totalAmount: '+workerAddress+' '+worker.reward);
+                                        //console.log('rewardAmount: '+workerAddress+' '+workerRewardTotal);
+                                        //console.log('totalAmount: '+workerAddress+' '+worker.reward);
                                     }
-                                    console.log('totalAmount: '+totalAmount);
-                                    console.log('blockHeight: '+round.height);
-                                    console.log('blockReward: '+reward);
-                                    console.log('totalShares: '+totalShares);
-                                    console.log('sharesLost: '+sharesLost);
-                                    console.log('----------------------------');
+                                    //console.log('totalAmount: '+totalAmount);
+                                    //console.log('blockHeight: '+round.height);
+                                    //console.log('blockReward: '+reward);
+                                    //console.log('totalShares: '+totalShares);
+                                    //console.log('sharesLost: '+sharesLost);
+                                    //console.log('----------------------------');
                                     break;
                             }
                         });
@@ -932,6 +931,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                 var trySend = function (withholdPercent) {
                     var addressAmounts = {};
                     var balanceAmounts = {};
+                    var shareAmounts = {};
                     var minerTotals = {};
                     var totalSent = 0;
                     var totalShares = 0;
@@ -974,10 +974,20 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             worker.sent = 0;
                             worker.balanceChange = Math.max(toSendSatoshis - worker.balance, 0);
                             // track balance changes
-                            if (balanceAmounts[address] != null && balanceAmounts[address] > 0) {
-                                balanceAmounts[address] = coinsRound(balanceAmounts[address] + satoshisToCoins(worker.balanceChange));
+                            if (worker.balanceChange > 0) {
+                                if (balanceAmounts[address] != null && balanceAmounts[address] > 0) {
+                                    balanceAmounts[address] = coinsRound(balanceAmounts[address] + satoshisToCoins(worker.balanceChange));
+                                } else {
+                                    balanceAmounts[address] = satoshisToCoins(worker.balanceChange);
+                                }
+                            }
+                        }
+                        // track share work
+                        if (worker.totalShares > 0) {
+                            if (shareAmounts[address] != null && shareAmounts[address] > 0) {
+                                shareAmounts[address] += worker.totalShares;
                             } else {
-                                balanceAmounts[address] = satoshisToCoins(worker.balanceChange);
+                                shareAmounts[address] = worker.totalShares;
                             }
                         }
                     }
@@ -1049,7 +1059,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 });
                                 
                                 var paymentsUpdate = [];
-                                var paymentsData = {time:Date.now(), txid:txid, shares:totalShares, paid:satoshisToCoins(totalSent),  miners:Object.keys(addressAmounts).length, blocks: paymentBlocks, amounts: addressAmounts, balances: balanceAmounts};
+                                var paymentsData = {time:Date.now(), txid:txid, shares:totalShares, paid:satoshisToCoins(totalSent),  miners:Object.keys(addressAmounts).length, blocks: paymentBlocks, amounts: addressAmounts, balances: balanceAmounts, work:shareAmounts};
                                 paymentsUpdate.push(['zadd', logComponent + ':payments', Date.now(), JSON.stringify(paymentsData)]);
                                 startRedisTimer();
                                 redisClient.multi(paymentsUpdate).exec(function(error, payments){
