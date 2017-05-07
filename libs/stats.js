@@ -296,7 +296,8 @@ module.exports = function(logger, portalConfig, poolConfigs){
 				['smembers', ':blocksConfirmed'],
 				['hgetall', ':shares:roundCurrent'],
                 ['hgetall', ':blocksPendingConfirms'],
-                ['zrange', ':payments', -100, -1]
+                ['zrange', ':payments', -100, -1],
+                ['hgetall', ':shares:timesCurrent']
             ];
 
             var commandsPerCoin = redisCommandTemplates.length;
@@ -358,7 +359,10 @@ module.exports = function(logger, portalConfig, poolConfigs){
 								blocks: replies[i + 7].sort(sortBlocks).slice(0,5)
 							},
                             payments: [],
-							currentRoundShares: replies[i + 8]
+							currentRoundShares: (replies[i + 8] || {}),
+                            currentRoundTimes: (replies[i + 11] || {}),
+                            maxRoundTime: 0,
+                            shareCount: 0
                         };
                         for(var j = replies[i + 10].length; j > 0; j--){
                             var jsonObj;
@@ -419,6 +423,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 shares: workerShares,
                                 invalidshares: 0,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
                                 hashrateString: null,
 								luckDays: null,
@@ -436,6 +441,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 								shares: workerShares,
 								invalidshares: 0,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
 								hashrateString: null,
 								luckDays: null,
@@ -455,6 +461,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 shares: 0,
 								invalidshares: -workerShares,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
                                 hashrateString: null,
 								luckDays: null,
@@ -472,6 +479,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 								shares: 0,
 								invalidshares: -workerShares,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
 								hashrateString: null,
 								luckDays: null,
@@ -510,6 +518,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 portalStats.algos[algo].workers += Object.keys(coinStats.workers).length;
 
                 var _shareTotal = parseFloat(0);
+                var _maxTimeShare = parseFloat(0);
                 for (var worker in coinStats.currentRoundShares) {
                     var miner = worker.split(".")[0];
                     if (miner in coinStats.miners) {
@@ -520,8 +529,20 @@ module.exports = function(logger, portalConfig, poolConfigs){
                     }
                     _shareTotal += parseFloat(coinStats.currentRoundShares[worker]);
                 }
+                for (var worker in coinStats.currentRoundTimes) {
+                    var time = parseFloat(coinStats.currentRoundTimes[worker]);
+                    if (_maxTimeShare < time)
+                        _maxTimeShare = time;
+                    
+                    var miner = worker.split(".")[0];
+                    if (miner in coinStats.miners) {
+                        coinStats.miners[miner].currRoundTime += parseFloat(coinStats.currentRoundTimes[worker]);
+                    }
+                }
+
                 coinStats.shareCount = _shareTotal;
-                                
+                coinStats.maxRoundTime = _maxTimeShare;
+
                 for (var worker in coinStats.workers) {
 					var _workerRate = shareMultiplier * coinStats.workers[worker].shares / portalConfig.website.stats.hashrateWindow;
 					var _wHashRate = (_workerRate / 1000000) * 2;
@@ -559,6 +580,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 delete saveStats.pools[pool].pending;
                 delete saveStats.pools[pool].confirmed;
                 delete saveStats.pools[pool].currentRoundShares;
+                delete saveStats.pools[pool].currentRoundTimes;
                 delete saveStats.pools[pool].payments;
                 delete saveStats.pools[pool].miners;
             });
