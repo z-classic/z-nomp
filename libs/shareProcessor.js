@@ -62,8 +62,6 @@ module.exports = function(logger, poolConfig){
             logger.error(logSystem, logComponent, logSubCat, "You're using redis version " + versionString + " the minimum required version is 2.6. Follow the damn usage instructions...");
         }
     });
-    
-    var _lastShareTimes = {};
 
     this.handleShare = function(isValidShare, isValidBlock, shareData) {
 
