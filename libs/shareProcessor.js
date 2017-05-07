@@ -25,19 +25,8 @@ module.exports = function(logger, poolConfig){
     var logSystem = 'Pool';
     var logComponent = coin;
     var logSubCat = 'Thread ' + (parseInt(forkId) + 1);
-
-    function roundTo(n, digits) {
-        if (digits === undefined) {
-            digits = 0;
-        }
-        var multiplicator = Math.pow(10, digits);
-        n = parseFloat((n * multiplicator).toFixed(11));
-        var test =(Math.round(n) / multiplicator);
-        return +(test.toFixed(digits));
-    }
     
     var connection = redis.createClient(redisConfig.port, redisConfig.host);
-
     connection.on('ready', function(){
         logger.debug(logSystem, logComponent, logSubCat, 'Share processing setup with redis (' + redisConfig.host +
             ':' + redisConfig.port  + ')');
@@ -48,7 +37,6 @@ module.exports = function(logger, poolConfig){
     connection.on('end', function(){
         logger.error(logSystem, logComponent, logSubCat, 'Connection to redis database has been ended');
     });
-
     connection.info(function(error, response){
         if (error){
             logger.error(logSystem, logComponent, logSubCat, 'Redis version check failed');
@@ -87,23 +75,6 @@ module.exports = function(logger, poolConfig){
         } else {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
-        
-        // pplnt time share tracking of workers
-        if (isValidShare || isValidBlock) {
-            var now = Date.now();
-            var lastShareTime = now;
-            var workerAddress = shareData.worker.split('.')[0];
-            if (_lastShareTimes[workerAddress] != null && _lastShareTimes[workerAddress] > 0) {
-                lastShareTime = _lastShareTimes[workerAddress];
-            }
-            // if its been less than 10 minutes since last share was submitted
-            var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 3);
-            if (timeChangeSec < 600) {
-                redisCommands.push(['hincrbyfloat', coin + ':shares:timesCurrent', workerAddress, timeChangeSec]);
-            }
-            // track last time share
-            _lastShareTimes[workerAddress] = now;
-        }
 
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
            doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
@@ -117,8 +88,6 @@ module.exports = function(logger, poolConfig){
             redisCommands.push(['rename', coin + ':shares:timesCurrent', coin + ':shares:times' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height, shareData.worker, dateNow].join(':')]);
             redisCommands.push(['hincrby', coin + ':stats', 'validBlocks', 1]);
-            // reset pplnt share times for next round
-            _lastShareTimes = {};
         }
         else if (shareData.blockHash){
             redisCommands.push(['hincrby', coin + ':stats', 'invalidBlocks', 1]);
