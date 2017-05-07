@@ -279,7 +279,7 @@ var spawnPoolWorkers = function(){
                         if (timeChangeSec < 600) {
                             // loyal miner keeps mining :)
                             redisCommands.push(['hincrbyfloat', msg.coin + ':shares:timesCurrent', workerAddress, timeChangeSec]);                            
-                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+':{totalTimeSec:'+timeChangeTotal+', timeChangeSec:'+timeChangeSec+'}');
+                            //logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+':{totalTimeSec:'+timeChangeTotal+', timeChangeSec:'+timeChangeSec+'}');
                             connection.multi(redisCommands).exec(function(err, replies){
                                 if (err)
                                     logger.error('PPLNT', msg.coin, 'Thread '+msg.thread, 'Error with time share processor call to redis ' + JSON.stringify(err));
