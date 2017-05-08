@@ -265,6 +265,7 @@ var spawnPoolWorkers = function(){
                         if (!_lastShareTimes[workerAddress] || !_lastStartTimes[workerAddress]) {
                             _lastShareTimes[workerAddress] = now;
                             _lastStartTimes[workerAddress] = now;
+                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+' joined current round.');
                         }
                         if (_lastShareTimes[workerAddress] != null && _lastShareTimes[workerAddress] > 0) {
                             lastShareTime = _lastShareTimes[workerAddress];
@@ -273,10 +274,10 @@ var spawnPoolWorkers = function(){
                         
                         var redisCommands = [];
                         
-                        // if its been less than 10 minutes since last share was submitted
+                        // if its been less than 15 minutes since last share was submitted
                         var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 4);
                         var timeChangeTotal = roundTo(Math.max(now - lastStartTime, 0) / 1000, 4);
-                        if (timeChangeSec < 600) {
+                        if (timeChangeSec < 900) {
                             // loyal miner keeps mining :)
                             redisCommands.push(['hincrbyfloat', msg.coin + ':shares:timesCurrent', workerAddress, timeChangeSec]);                            
                             //logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+':{totalTimeSec:'+timeChangeTotal+', timeChangeSec:'+timeChangeSec+'}');
@@ -287,6 +288,7 @@ var spawnPoolWorkers = function(){
                         } else {
                             // they just re-joined the pool
                             _lastStartTimes[workerAddress] = now;
+                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+' re-joined current round.');
                         }
                         
                         // track last time share
