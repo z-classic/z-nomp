@@ -152,6 +152,20 @@ module.exports = function(logger, portalConfig, poolConfigs){
         }
         _this.statPoolHistory.push(data);
     }
+    
+    function readableSeconds(t) {
+        var seconds = Math.round(t);
+        var minutes = Math.floor(seconds/60);
+        var hours = Math.floor(minutes/60);
+        var days = Math.floor(hours/24);
+        hours = hours-(days*24);
+        minutes = minutes-(days*24*60)-(hours*60);
+        seconds = seconds-(days*24*60*60)-(hours*60*60)-(minutes*60);
+        if (days > 0) { return (days + "d " + hours + "h " + minutes + "m " + seconds + "s"); }
+        if (hours > 0) { return (hours + "h " + minutes + "m " + seconds + "s"); }
+        if (minutes > 0) {return (minutes + "m " + seconds + "s"); }
+        return (seconds + "s");
+    }
 
     this.getCoins = function(cback){
         _this.stats.coins = redisClients[0].coins;
@@ -542,7 +556,8 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
                 coinStats.shareCount = _shareTotal;
                 coinStats.maxRoundTime = _maxTimeShare;
-
+                coinStats.maxRoundTimeString = readableSeconds(_maxTimeShare);
+                
                 for (var worker in coinStats.workers) {
 					var _workerRate = shareMultiplier * coinStats.workers[worker].shares / portalConfig.website.stats.hashrateWindow;
 					var _wHashRate = (_workerRate / 1000000) * 2;
