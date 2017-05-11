@@ -152,6 +152,20 @@ module.exports = function(logger, portalConfig, poolConfigs){
         }
         _this.statPoolHistory.push(data);
     }
+    
+    function readableSeconds(t) {
+        var seconds = Math.round(t);
+        var minutes = Math.floor(seconds/60);
+        var hours = Math.floor(minutes/60);
+        var days = Math.floor(hours/24);
+        hours = hours-(days*24);
+        minutes = minutes-(days*24*60)-(hours*60);
+        seconds = seconds-(days*24*60*60)-(hours*60*60)-(minutes*60);
+        if (days > 0) { return (days + "d " + hours + "h " + minutes + "m " + seconds + "s"); }
+        if (hours > 0) { return (hours + "h " + minutes + "m " + seconds + "s"); }
+        if (minutes > 0) {return (minutes + "m " + seconds + "s"); }
+        return (seconds + "s");
+    }
 
     this.getCoins = function(cback){
         _this.stats.coins = redisClients[0].coins;
@@ -296,7 +310,8 @@ module.exports = function(logger, portalConfig, poolConfigs){
 				['smembers', ':blocksConfirmed'],
 				['hgetall', ':shares:roundCurrent'],
                 ['hgetall', ':blocksPendingConfirms'],
-                ['zrange', ':payments', -100, -1]
+                ['zrange', ':payments', -100, -1],
+                ['hgetall', ':shares:timesCurrent']
             ];
 
             var commandsPerCoin = redisCommandTemplates.length;
@@ -317,6 +332,12 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 else{
                     for(var i = 0; i < replies.length; i += commandsPerCoin){
                         var coinName = client.coins[i / commandsPerCoin | 0];
+                        var marketStats = {};
+                        if (replies[i + 2]) {
+                            if (replies[i + 2].coinmarketcap) {
+                                marketStats = replies[i + 2] ? (JSON.parse(replies[i + 2].coinmarketcap)[0] || 0) : 0;
+                            }
+                        }
                         var coinStats = {
                             name: coinName,
                             symbol: poolConfigs[coinName].coin.symbol.toUpperCase(),
@@ -335,6 +356,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 networkVersion: replies[i + 2] ? (replies[i + 2].networkSubVersion || 0) : 0,
                                 networkProtocolVersion: replies[i + 2] ? (replies[i + 2].networkProtocolVersion || 0) : 0
                             },
+                            marketStats: marketStats,
                             /* block stat counts */
                             blocks: {
                                 pending: replies[i + 3],
@@ -344,14 +366,17 @@ module.exports = function(logger, portalConfig, poolConfigs){
                             /* show all pending blocks */
 							pending: {
 								blocks: replies[i + 6].sort(sortBlocks),
-                                confirms: replies[i + 9]
+                                confirms: (replies[i + 9] || {})
 							},
                             /* show last 5 found blocks */
 							confirmed: {
 								blocks: replies[i + 7].sort(sortBlocks).slice(0,5)
 							},
                             payments: [],
-							currentRoundShares: replies[i + 8]
+							currentRoundShares: (replies[i + 8] || {}),
+                            currentRoundTimes: (replies[i + 11] || {}),
+                            maxRoundTime: 0,
+                            shareCount: 0
                         };
                         for(var j = replies[i + 10].length; j > 0; j--){
                             var jsonObj;
@@ -364,17 +389,10 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 coinStats.payments.push(jsonObj);
                             }
                         }
-						/*
-						for (var b in coinStats.confirmed.blocks) {
-							var parms = coinStats.confirmed.blocks[b].split(':');
-							if (parms[4] != null && parms[4] > 0) {
-								console.log(fancyTimestamp(parseInt(parms[4]), true));
-							}
-							break;
-						}
-						*/
                         allCoinStats[coinStats.name] = (coinStats);
                     }
+                    // sort pools alphabetically
+                    allCoinStats = sortPoolsByName(allCoinStats);
                     callback();
                 }
             });
@@ -419,6 +437,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 shares: workerShares,
                                 invalidshares: 0,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
                                 hashrateString: null,
 								luckDays: null,
@@ -436,6 +455,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 								shares: workerShares,
 								invalidshares: 0,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
 								hashrateString: null,
 								luckDays: null,
@@ -455,6 +475,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                                 shares: 0,
 								invalidshares: -workerShares,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
                                 hashrateString: null,
 								luckDays: null,
@@ -472,6 +493,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 								shares: 0,
 								invalidshares: -workerShares,
 								currRoundShares: 0,
+                                currRoundTime: 0,
 								hashrate: null,
 								hashrateString: null,
 								luckDays: null,
@@ -510,6 +532,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 portalStats.algos[algo].workers += Object.keys(coinStats.workers).length;
 
                 var _shareTotal = parseFloat(0);
+                var _maxTimeShare = parseFloat(0);
                 for (var worker in coinStats.currentRoundShares) {
                     var miner = worker.split(".")[0];
                     if (miner in coinStats.miners) {
@@ -520,8 +543,21 @@ module.exports = function(logger, portalConfig, poolConfigs){
                     }
                     _shareTotal += parseFloat(coinStats.currentRoundShares[worker]);
                 }
+                for (var worker in coinStats.currentRoundTimes) {
+                    var time = parseFloat(coinStats.currentRoundTimes[worker]);
+                    if (_maxTimeShare < time)
+                        _maxTimeShare = time;
+                    
+                    var miner = worker.split(".")[0];
+                    if (miner in coinStats.miners) {
+                        coinStats.miners[miner].currRoundTime += parseFloat(coinStats.currentRoundTimes[worker]);
+                    }
+                }
+
                 coinStats.shareCount = _shareTotal;
-                                
+                coinStats.maxRoundTime = _maxTimeShare;
+                coinStats.maxRoundTimeString = readableSeconds(_maxTimeShare);
+                
                 for (var worker in coinStats.workers) {
 					var _workerRate = shareMultiplier * coinStats.workers[worker].shares / portalConfig.website.stats.hashrateWindow;
 					var _wHashRate = (_workerRate / 1000000) * 2;
@@ -559,6 +595,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 delete saveStats.pools[pool].pending;
                 delete saveStats.pools[pool].confirmed;
                 delete saveStats.pools[pool].currentRoundShares;
+                delete saveStats.pools[pool].currentRoundTimes;
                 delete saveStats.pools[pool].payments;
                 delete saveStats.pools[pool].miners;
             });
@@ -591,13 +628,24 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
     };
 
-	function sortBlocks(a, b) {
-		var as = a.split(":");
-		var bs = b.split(":");
-		if (as[2] > bs[2]) return -1;
-		if (as[2] < bs[2]) return 1;
-		return 0;
-	}
+    function sortPoolsByName(objects) {
+		var newObject = {};
+		var sortedArray = sortProperties(objects, 'name', false, false);
+		for (var i = 0; i < sortedArray.length; i++) {
+			var key = sortedArray[i][0];
+			var value = sortedArray[i][1];
+			newObject[key] = value;
+		}
+		return newObject;
+    }
+    
+    function sortBlocks(a, b) {
+        var as = parseInt(a.split(":")[2]);
+        var bs = parseInt(b.split(":")[2]);
+        if (as > bs) return -1;
+        if (as < bs) return 1;
+        return 0;
+    }
 	
 	function sortWorkersByName(objects) {
 		var newObject = {};

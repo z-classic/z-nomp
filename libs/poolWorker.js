@@ -177,9 +177,9 @@ module.exports = function(logger){
 
         var pool = Stratum.createPool(poolOptions, authorizeFN, logger);
         pool.on('share', function(isValidShare, isValidBlock, data){
-
+            
             var shareData = JSON.stringify(data);
-
+            
             if (data.blockHash && !isValidBlock)
                 logger.debug(logSystem, logComponent, logSubCat, 'We thought a block was found but it was rejected by the daemon, share data: ' + shareData);
 
@@ -187,19 +187,22 @@ module.exports = function(logger){
                 logger.debug(logSystem, logComponent, logSubCat, 'Block found: ' + data.blockHash + ' by ' + data.worker);
 
             if (isValidShare) {
-                if(data.shareDiff > 1000000000)
+                if(data.shareDiff > 1000000000) {
                     logger.debug(logSystem, logComponent, logSubCat, 'Share was found with diff higher than 1.000.000.000!');
-                else if(data.shareDiff > 1000000)
+                } else if(data.shareDiff > 1000000) {
                     logger.debug(logSystem, logComponent, logSubCat, 'Share was found with diff higher than 1.000.000!');
-				
+                }
                 //logger.debug(logSystem, logComponent, logSubCat, 'Share accepted at diff ' + data.difficulty + '/' + data.shareDiff + ' by ' + data.worker + ' [' + data.ip + ']' );
-
-            } else if (!isValidShare)
+            } else if (!isValidShare) {
                 logger.debug(logSystem, logComponent, logSubCat, 'Share rejected: ' + shareData);
-
-            handlers.share(isValidShare, isValidBlock, data)
-
-
+            }
+            
+            // handle the share
+            handlers.share(isValidShare, isValidBlock, data);
+            
+            // send to master for pplnt time tracking
+            process.send({type: 'shareTrack', thread:(parseInt(forkId)+1), coin:poolOptions.coin.name, isValidShare:isValidShare, isValidBlock:isValidBlock, data:data});
+            
         }).on('difficultyUpdate', function(workerName, diff){
             logger.debug(logSystem, logComponent, logSubCat, 'Difficulty update to diff ' + diff + ' workerName=' + JSON.stringify(workerName));
             handlers.diff(workerName, diff);

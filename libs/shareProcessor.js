@@ -25,9 +25,8 @@ module.exports = function(logger, poolConfig){
     var logSystem = 'Pool';
     var logComponent = coin;
     var logSubCat = 'Thread ' + (parseInt(forkId) + 1);
-
+    
     var connection = redis.createClient(redisConfig.port, redisConfig.host);
-
     connection.on('ready', function(){
         logger.debug(logSystem, logComponent, logSubCat, 'Share processing setup with redis (' + redisConfig.host +
             ':' + redisConfig.port  + ')');
@@ -38,7 +37,6 @@ module.exports = function(logger, poolConfig){
     connection.on('end', function(){
         logger.error(logSystem, logComponent, logSubCat, 'Connection to redis database has been ended');
     });
-
     connection.info(function(error, response){
         if (error){
             logger.error(logSystem, logComponent, logSubCat, 'Redis version check failed');
@@ -65,18 +63,17 @@ module.exports = function(logger, poolConfig){
         }
     });
 
-
-    this.handleShare = function(isValidShare, isValidBlock, shareData){
+    this.handleShare = function(isValidShare, isValidBlock, shareData) {
 
         var redisCommands = [];
 
-        if (isValidShare){
+        if (isValidShare) {
             redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
-        }
-        else{
+        } else {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
+
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
            doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
            generate hashrate for each worker and pool. */
@@ -86,6 +83,7 @@ module.exports = function(logger, poolConfig){
 
         if (isValidBlock){
             redisCommands.push(['rename', coin + ':shares:roundCurrent', coin + ':shares:round' + shareData.height]);
+            redisCommands.push(['rename', coin + ':shares:timesCurrent', coin + ':shares:times' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height, shareData.worker, dateNow].join(':')]);
             redisCommands.push(['hincrby', coin + ':stats', 'validBlocks', 1]);
         }
@@ -97,8 +95,6 @@ module.exports = function(logger, poolConfig){
             if (err)
                 logger.error(logSystem, logComponent, logSubCat, 'Error with share processor multi ' + JSON.stringify(err));
         });
-
-
     };
 
 };
