@@ -187,8 +187,8 @@ function roundTo(n, digits) {
     return +(test.toFixed(digits));
 }
 
-var _lastStartTimes = {};
-var _lastShareTimes = {};
+var _lastStartTimes = [];
+var _lastShareTimes = [];
 
 var spawnPoolWorkers = function(){
 
@@ -261,22 +261,32 @@ var spawnPoolWorkers = function(){
                         var lastShareTime = now;
                         var lastStartTime = now;
                         var workerAddress = msg.data.worker.split('.')[0];
-                        // did they just join in this round?
-                        if (!_lastShareTimes[workerAddress] || !_lastStartTimes[workerAddress]) {
-                            _lastShareTimes[workerAddress] = now;
-                            _lastStartTimes[workerAddress] = now;
-                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+' joined current round.');
+                        
+                        // if needed, initialize PPLNT objects for coin
+                        if (!_lastShareTimes[msg.coin]) {
+                            _lastShareTimes[msg.coin] = {};
                         }
-                        if (_lastShareTimes[workerAddress] != null && _lastShareTimes[workerAddress] > 0) {
-                            lastShareTime = _lastShareTimes[workerAddress];
-                            lastStartTime = _lastStartTimes[workerAddress];
+                        if (!_lastStartTimes[msg.coin]) {
+                            _lastStartTimes[msg.coin] = {};
+                        }
+                        
+                        // did they just join in this round?
+                        if (!_lastShareTimes[msg.coin][workerAddress] || !_lastStartTimes[msg.coin][workerAddress]) {
+                            _lastShareTimes[msg.coin][workerAddress] = now;
+                            _lastStartTimes[msg.coin][workerAddress] = now;
+                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+' joined.');
+                        }
+                        // grab last times from memory objects
+                        if (_lastShareTimes[msg.coin][workerAddress] != null && _lastShareTimes[msg.coin][workerAddress] > 0) {
+                            lastShareTime = _lastShareTimes[msg.coin][workerAddress];
+                            lastStartTime = _lastStartTimes[msg.coin][workerAddress];
                         }
                         
                         var redisCommands = [];
                         
                         // if its been less than 15 minutes since last share was submitted
                         var timeChangeSec = roundTo(Math.max(now - lastShareTime, 0) / 1000, 4);
-                        var timeChangeTotal = roundTo(Math.max(now - lastStartTime, 0) / 1000, 4);
+                        //var timeChangeTotal = roundTo(Math.max(now - lastStartTime, 0) / 1000, 4);
                         if (timeChangeSec < 900) {
                             // loyal miner keeps mining :)
                             redisCommands.push(['hincrbyfloat', msg.coin + ':shares:timesCurrent', workerAddress, timeChangeSec]);                            
@@ -288,16 +298,16 @@ var spawnPoolWorkers = function(){
                         } else {
                             // they just re-joined the pool
                             _lastStartTimes[workerAddress] = now;
-                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+' re-joined current round.');
+                            logger.debug('PPLNT', msg.coin, 'Thread '+msg.thread, workerAddress+' re-joined.');
                         }
                         
                         // track last time share
-                        _lastShareTimes[workerAddress] = now;
+                        _lastShareTimes[msg.coin][workerAddress] = now;
                     }
                     if (msg.isValidBlock) {
                         // reset pplnt share times for next round
-                        _lastShareTimes = {};
-                        _lastStartTimes = {};
+                        _lastShareTimes[msg.coin] = {};
+                        _lastStartTimes[msg.coin] = {};
                     }
                     break;
             }
