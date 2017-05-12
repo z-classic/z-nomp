@@ -27,6 +27,8 @@
 
     "paymentProcessing": {
         "enabled": true,
+        "paymentMode": "prop",
+        "_comment_paymentMode":"prop, pplnt",
         "paymentInterval": 57,
         "_comment_paymentInterval": "Interval in seconds to check and perform payments.",
         "minimumPayment": 0.1,
