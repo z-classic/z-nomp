@@ -43,8 +43,6 @@ module.exports = function(logger, portalConfig, poolConfigs){
 							// get current round share total
 							portalStats.getTotalSharesByAddress(address, function(shares) {								
 								var totalHash = parseFloat(0.0);
-								var totalHeld = parseFloat(0.0);
-								var totalPaid = parseFloat(0.0);
 								var totalShares = shares;
 								var networkSols = 0;
 								for (var h in portalStats.statHistory) {
@@ -69,8 +67,8 @@ module.exports = function(logger, portalConfig, poolConfigs){
 										workers[w] = portalStats.stats.pools[pool].workers[w];
 										for (var b in balances.balances) {
 											if (w == balances.balances[b].worker) {
-											 workers[w].paid = balances.balances[b].paid;
-											 workers[w].balance = balances.balances[b].balance;
+                                                workers[w].paid = balances.balances[b].paid;
+                                                workers[w].balance = balances.balances[b].balance;
 											}
 										}
 										workers[w].balance = (workers[w].balance || 0);
