@@ -260,11 +260,11 @@ module.exports = function(logger, portalConfig, poolConfigs){
 									balName = String(bals[1][b]);
 								} else if (balName == workerName) {
 									balAmount = parseFloat(bals[1][b]);
-									totalHeld = balanceRound(totalHeld+balAmount);
 								}
 							}
 							paidAmount = parseFloat(pays[1][i]);
-							totalPaid = balanceRound(totalPaid+paidAmount);
+                            totalHeld += balAmount;
+							totalPaid += paidAmount;
 							balances.push({
 								worker:String(workerName),
 								balance:balanceRound(balAmount),
@@ -285,7 +285,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 			_this.stats.balances = balances;
 			_this.stats.address = address;
 			
-			cback({totalHeld:totalHeld, totalPaid:totalPaid, balances});
+			cback({totalHeld:balanceRound(totalHeld), totalPaid:balanceRound(totalPaid), balances});
 		});
 	};
 
