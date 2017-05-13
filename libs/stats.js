@@ -240,38 +240,45 @@ module.exports = function(logger, portalConfig, poolConfigs){
 		async.each(_this.stats.pools, function(pool, pcb) {
 			var coin = String(_this.stats.pools[pool.name].name);
 			// get all balances from address
-			client.hscan(coin + ':balances', 0, "match", a+"*", function(error, bals) {
+			client.hscan(coin + ':balances', 0, "match", a+"*", "count", 1000, function(error, bals) {
 				// get all payouts from address
-				client.hscan(coin + ':payouts', 0, "match", a+"*", function(error, pays) {
-					
-					var addressFound = false;
+				client.hscan(coin + ':payouts', 0, "match", a+"*", "count", 1000, function(error, pays) {
+                    
 					var workerName = "";
 					var balName = "";
 					var balAmount = 0;
 					var paidAmount = 0;
-										
+                    
+                    var workers = {};
+                    
 					for (var i in pays[1]) {
 						if (Math.abs(i % 2) != 1) {
 							workerName = String(pays[1][i]);
+                            workers[workerName] = (workers[workerName] || {});
 						} else {
-							balAmount = 0;
-							for (var b in bals[1]) {
-								if (Math.abs(b % 2) != 1) {
-									balName = String(bals[1][b]);
-								} else if (balName == workerName) {
-									balAmount = parseFloat(bals[1][b]);
-								}
-							}
 							paidAmount = parseFloat(pays[1][i]);
-                            totalHeld += balAmount;
+                            workers[workerName].paid = balanceRound(paidAmount);
 							totalPaid += paidAmount;
-							balances.push({
-								worker:String(workerName),
-								balance:balanceRound(balAmount),
-								paid:balanceRound(paidAmount)
-							});
 						}
 					}
+                    for (var b in bals[1]) {
+                        if (Math.abs(b % 2) != 1) {
+                            balName = String(bals[1][b]);
+                            workers[balName] = (workers[balName] || {});
+                        } else {
+                            balAmount = parseFloat(bals[1][b]);
+                            workers[workerName].balance = balanceRound(balAmount);
+                            totalHeld += balAmount;
+                        }
+                    }
+
+                    for (var w in workers) {
+                        balances.push({
+                            worker:String(w),
+                            balance:workers[w].balance,
+                            paid:workers[w].paid
+                        });
+                    }
 					
 					pcb();
 				});
