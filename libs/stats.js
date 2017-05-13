@@ -267,7 +267,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                             workers[balName] = (workers[balName] || {});
                         } else {
                             balAmount = parseFloat(bals[1][b]);
-                            workers[workerName].balance = balanceRound(balAmount);
+                            workers[balName].balance = balanceRound(balAmount);
                             totalHeld += balAmount;
                         }
                     }
