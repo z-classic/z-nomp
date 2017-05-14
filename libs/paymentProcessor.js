@@ -52,8 +52,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var opidCount = 0;
     
     // zcash team recommends 10 confirmations for safety from orphaned blocks
-    var minConfShield = Math.max((processingConfig.minConf || 10), 3);
-    var minConfPayout = Math.max((processingConfig.minConf || 10), 3);
+    var minConfShield = Math.max((processingConfig.minConf || 10), 1);  //Dont allow 0 conf transactions.
+    var minConfPayout = Math.max((processingConfig.minConf || 10), 1);
+    
+    if (processingConfig.minConf < 3) {
+           logger.debug(logSystem, logComponent + 'Minimum confirmations for payments is less than 3, this increases the chances of a payment being orphaned');
+    }
     
     var maxBlocksPerPayment = processingConfig.maxBlocksPerPayment || 3;
     
