@@ -52,8 +52,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var opidCount = 0;
     
     // zcash team recommends 10 confirmations for safety from orphaned blocks
-    var minConfShield = Math.max((processingConfig.minConf || 10), 3);
-    var minConfPayout = Math.max((processingConfig.minConf || 10), 3);
+    var minConfShield = Math.max((processingConfig.minConf || 10), 1);  //Dont allow 0 conf transactions.
+    var minConfPayout = Math.max((processingConfig.minConf || 10), 1);
+    
+    if (processingConfig.minConf < 10) {
+           logger.debug(logSystem, logComponent, logComponent + 'Minimum confirmations for payments is less than 10, this increases the chances of a payment being orphaned');
+    }
     
     var maxBlocksPerPayment = processingConfig.maxBlocksPerPayment || 3;
     
@@ -66,6 +70,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var fee = parseFloat(poolOptions.coin.txfee) || parseFloat(0.0004);
 
     logger.debug(logSystem, logComponent, logComponent + ' requireShielding: ' + requireShielding);
+    logger.debug(logSystem, logComponent, logComponent + ' minConf: ' + minConfShield);
     logger.debug(logSystem, logComponent, logComponent + ' payments txfee reserve: ' + fee);
     logger.debug(logSystem, logComponent, logComponent + ' maxBlocksPerPayment: ' + maxBlocksPerPayment);
     logger.debug(logSystem, logComponent, logComponent + ' PPLNT: ' + pplntEnabled + ', time period: '+pplntTimeQualify);
