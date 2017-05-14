@@ -55,7 +55,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var minConfShield = Math.max((processingConfig.minConf || 10), 1);  //Dont allow 0 conf transactions.
     var minConfPayout = Math.max((processingConfig.minConf || 10), 1);
     
-    if (processingConfig.minConf < 10) {
+    if (minConfPayout  < 10) {
            logger.debug(logSystem, logComponent, logComponent + 'Minimum confirmations for payments is less than 10, this increases the chances of a payment being orphaned');
     }
     
