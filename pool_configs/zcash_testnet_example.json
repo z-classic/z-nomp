@@ -20,6 +20,7 @@
     },
 
     "paymentProcessing": {
+	"minConf": 10,
         "enabled": false,
         "paymentMode": "prop",
         "_comment_paymentMode":"prop, pplnt",

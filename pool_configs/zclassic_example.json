@@ -17,6 +17,7 @@
     },
 
     "tlsOptions": {
+	"minConf": 10,
         "enabled": false,
         "serverKey":"",
         "serverCert":"",
