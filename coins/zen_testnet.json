@@ -1,0 +1,25 @@
+{
+    "name": "zen_testnet",
+    "symbol": "znt",
+    "algorithm": "equihash",
+    "requireShielding": true,
+    "payFoundersReward": true,
+    "percentFoundersReward": 8.5,
+    "maxFoundersRewardBlockHeight": 849999,
+    "foundersRewardAddressChangeInterval": 17709.3125,
+    "vFoundersRewardAddress": [
+            "zrS7wh6nkHAaNLBoBg7DzJLBbq8eaiKLmQa", "zrJru5MafScK6nNTnaCJJEJGfnnz3oLS6VZ", "zr3b5NtkqSiG51U4ud7bQ6Xc5LfNF6fZ1Jb", "zrBeNNqHUuoZ98mpyGpzhcHxHSJGBF8To1w",
+            "zrAZAt4FXpBabXngpxTua6VVAcYsX3DeD6G", "zrEXD3aZfrAT15QGsGo5JqqeDcAY2XdcY5X", "zr6xd1vfqTz2L31suFApwDLRj51o9FbPxdU", "zrHpnXiwQYsySdCgEFpkLDwsza4zHE23tZa",
+            "zrHrn3mTJtNpQQ3dZ8njHZhsnuTPPnjXGP1", "zrHQGDkWw9PDQjj6cXPASH9EQyYYuA6LGiL", "zrQbijU88BwiPenD9AbAFWhXkedb6ReMggq", "zr7c4MfJgDgtH4hJZH5d8NxGDMeGsV3doPj",
+            "zrHSJNd9pvP2RkFQXr3TmD7kZGmskwVyP5S", "zr9nV5eLZymNf5sYhCzE5wDSvU8boS4mV93", "zrFdfWgGMrRswoEKtf4y9q3JzhtPLi4Vqmp", "zr7LFkSg6S1q33SsKzvrvkKFcKuAAPYTGzj",
+            "zr5JmNJ9taXVbHjrqDV3SnvPf4cVXsfi1pg", "zrC3j8CS8YQbouhau3Uuv8n5HtbLc6DGrvh", "zrDyhz4n4vAymTvSrQp5hveZbdGfYchoDXg", "zrP2HVdi9vVTk1gu7gcnpSbtHo9tRDc4BqZ",
+            "zr7xEqwDLzhB6RwrBidTfJSXyTNAgfwPhdi", "zr5jV3jMVabQw3LXis5KXFJux9PhSwigayc", "zrGwEtRtfKaoLNHizz397wDeS7mYchFGPqF", "zrFYbLC1jxBA49mw3tjLXzucMifotV5ZWSw",
+            "zrLS1eTXvPmoUg4kuBCxZ6VVTzPWSvFxrJY", "zr7jebTdNWYeyeEV3K6hbzGz3srhvevvted", "zrR1eQGEjteMsgqX5ibYgdw6JSDy7m8TG5e", "zrFRM8FSqEAirXKA43usBErUQEzt9mteiJv",
+            "zrJYfXeT9qkgQoAJmVrGkdc3RCvVnbidyUK", "zrQBsJoFGavnmDDCcKChCL1vMsN57RY2vHo", "zrFtXq6Rd8P7j8sAjVkZTSVs3pACu562WKs", "zrBUacrs9tBscjoVcRnD1P6C3f97RpPJ9zp",
+            "zrEBHuvcuneFZ5jnzeh6iLWakCcRY2rbEar", "zrM96PXnTXSGSz38UfzMd8YWfFcU9HWyRcR", "zr7MNLHBB5bwDV4CVaSVPtvKiHwSkfiW48U", "zrQuggPdjhpBqG3aEk1ubGPPpt5VS59KeDD",
+            "zrMzoFGbCsNZqvDGrAvoqBxujy8X9vrSkVX", "zrCyNhTbe5PSq6eFPF6FSBWLYPNvwX2PG1f", "zr8bpVisfyqCLi1PSxzzKChYYBPdfdGshX5", "zrFkkH4W1A1aAT2mgGtUWdpPTHVNDzq1xZ3",
+            "zr9a2dds8R3XBNnSf3ksmdtF5VEYCjUrcRy", "zrAfVMx7TekjaKLCJ6RUm45rLnQ3q1hbcDG", "zrCLJE55yFp1YfxhKL8czNuqj5xkYREuhs9", "zr6jXTCoiSZBGWC1UsYxebMXU4GeWVVbfHR",
+            "zrSH83dkjwunqQ8KJ9LWfqBXVtaDeqYGukG", "zrFscKUGBjDLMKnZNHwpx9QSBjQoxzwCQQr", "zrN5rUsTTehpRZwGxj4tJruRUBBLpA1aM1y", "zr9scrSW7zdDaxxtVAfxZLFxDW2NjqAAHgi"
+    ],
+    "txfee": 0.0004
+}
