@@ -32,11 +32,9 @@ module.exports = function(logger){
             var logSystem = 'Payments';
             var logComponent = coin;
 
-            logger.debug(logSystem, logComponent, 'Payment processing setup to run every '
-                + processingConfig.paymentInterval + ' second(s) with daemon ('
+            logger.debug(logSystem, logComponent, 'Payment processing setup with daemon ('
                 + processingConfig.daemon.user + '@' + processingConfig.daemon.host + ':' + processingConfig.daemon.port
-                + ') and redis (' + poolOptions.redis.host + ':' + poolOptions.redis.port + ')');
-
+                + ') and redis (' + poolOptions.redis.host + ':' + poolOptions.redis.port + ')');                
         });
     });
 };
@@ -52,14 +50,19 @@ function SetupForPool(logger, poolOptions, setupFinished){
     var opidCount = 0;
     
     // zcash team recommends 10 confirmations for safety from orphaned blocks
-    var minConfShield = Math.max((processingConfig.minConf || 10), 1);  //Dont allow 0 conf transactions.
+    var minConfShield = Math.max((processingConfig.minConf || 10), 1); // Don't allow 0 conf transactions.
     var minConfPayout = Math.max((processingConfig.minConf || 10), 1);
-    
     if (minConfPayout  < 10) {
-           logger.debug(logSystem, logComponent, logComponent + 'Minimum confirmations for payments is less than 10, this increases the chances of a payment being orphaned');
+        logger.warning(logSystem, logComponent, logComponent + 'minConf of 10 is recommended to reduce chances of payments being orphaned.');
     }
     
-    var maxBlocksPerPayment = processingConfig.maxBlocksPerPayment || 3;
+    // minimum paymentInterval of 60 seconds
+    var paymentIntervalSecs = Math.max((processingConfig.paymentInterval || 180), 60);
+    if (parseInt(processingConfig.paymentInterval) < 180) {
+        logger.warning(logSystem, logComponent, 'paymentInterval of 180 seconds recommended to reduce the RPC work queue.');
+    }
+    
+    var maxBlocksPerPayment =  Math.max(processingConfig.maxBlocksPerPayment || 3, 1);
     
     // pplnt - pay per last N time shares
     var pplntEnabled = processingConfig.paymentMode === "pplnt" || false;
@@ -170,7 +173,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
             } catch(e){
                 throw e;
             }
-        }, processingConfig.paymentInterval * 1000);
+        }, paymentIntervalSecs * 1000);
         setTimeout(processPayments, 100);
         setupFinished(true);
     }
@@ -190,26 +193,26 @@ function SetupForPool(logger, poolOptions, setupFinished){
             var args = [minConf, 99999999];
         }
         daemon.cmd('listunspent', args, function (result) {
-            //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
-            if (result.error) {
-                logger.error(logSystem, logComponent, 'Error trying to get t-addr ['+addr+'] balance with RPC listunspent.'
+            if (!result || result.error || result[0].error || !result[0].response) {
+                logger.error(logSystem, logComponent, 'Error trying to get balance for address '+addr+' with RPC call listunspent.'
                     + JSON.stringify(result.error));
                 callback = function (){};
                 callback(true);
             }
             else {
-                var tBalance = 0;
+                var tBalance = parseFloat(0);
                 if (result[0].response != null && result[0].response.length > 0) {
                     for (var i = 0, len = result[0].response.length; i < len; i++) {
-                        if (result[0].response[i].address !== notAddr) {
-                            tBalance = tBalance + (result[0].response[i].amount * magnitude);
+                        if (result[0].response[i].address && result[0].response[i].address !== notAddr) {
+                            tBalance += parseFloat(result[0].response[i].amount || 0);
                         }
                     }
+                    tBalance = coinsRound(tBalance);
                 }
                 if (displayBool === true) {
-                    logger.special(logSystem, logComponent, addr+' balance of ' + (tBalance / magnitude).toFixed(8));
+                    logger.special(logSystem, logComponent, addr+' balance of ' + tBalance);
                 }
-                callback(null, tBalance.toFixed(8));
+                callback(null, coinsToSatoshies(tBalance));
             }
         });
     }
@@ -217,21 +220,20 @@ function SetupForPool(logger, poolOptions, setupFinished){
     // get z_address coinbalance
     function listUnspentZ (addr, minConf, displayBool, callback) {
         daemon.cmd('z_getbalance', [addr, minConf], function (result) {
-            //Check if payments failed because wallet doesn't have enough coins to pay for tx fees
-            if (result[0].error) {
-                logger.error(logSystem, logComponent, 'Error trying to get coin balance with RPC z_getbalance.' + JSON.stringify(result[0].error));
+            if (!result || result.error || result[0].error) {
+                logger.error(logSystem, logComponent, 'Error trying to get z-addr balance with RPC call z_getbalance.');
                 callback = function (){};
                 callback(true);
             }
             else {
-                var zBalance = 0;
+                var zBalance = parseFloat(0);
                 if (result[0].response != null) {
-                    zBalance = result[0].response;
+                    zBalance = coinsRound(result[0].response);
                 }
                 if (displayBool === true) {
                     logger.special(logSystem, logComponent, addr.substring(0,14) + '...' + addr.substring(addr.length - 14) + ' balance: '+(zBalance).toFixed(8));
                 }
-                callback(null, (zBalance * magnitude).toFixed(8));
+                callback(null, coinsToSatoshies(zBalance));
             }
         });
     }
@@ -240,7 +242,11 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function sendTToZ (callback, tBalance) {
         if (callback === true)
             return;
-        if ((tBalance - 10000) < 0)
+        if (tBalance === NaN) {
+            logger.error(logSystem, logComponent, 'tBalance === NaN for sendTToZ');
+            return;
+        }
+        if ((tBalance - 10000) <= 0)
             return;
 
         // do not allow more than a single z_sendmany operation at a time
@@ -273,7 +279,11 @@ function SetupForPool(logger, poolOptions, setupFinished){
     function sendZToT (callback, zBalance) {
         if (callback === true)
             return;
-        if ((zBalance - 10000) < 0)
+        if (zBalance === NaN) {
+            logger.error(logSystem, logComponent, 'zBalance === NaN for sendZToT');
+            return;
+        }
+        if ((zBalance - 10000) <= 0)
             return;
 
         // do not allow more than a single z_sendmany operation at a time
@@ -387,9 +397,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
         );
     }
 
-    // run coinbase coin transfers every x minutes
+    // run shielding process every x minutes
     var shieldIntervalState = 0; // do not send ZtoT and TtoZ and same time, this results in operation failed!
-    var shielding_interval = poolOptions.walletInterval * 60 * 1000; // run every x minutes
+    var shielding_interval = Math.max(parseInt(poolOptions.walletInterval || 1), 1) * 60 * 1000; // run every x minutes
     // shielding not required for some equihash coins
     if (requireShielding === true) {
         var shieldInterval = setInterval(function() {
@@ -446,8 +456,13 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         }
                     }
                 });
+                // if there are no pending operations
                 if (batchRPC.length <= 0) {
                     opidInterval = setInterval(checkOpids, opid_interval);
+                    if (opidCount > 0) {
+                        opidCount = 0;
+                        logger.warning(logSystem, logComponent, 'Cleared opidCount, batchRPC.length <= 0 for z_getoperationresult RPC call.');
+                    }
                     return;
                 }
                 daemon.batchCmd(batchRPC, function(error, results){
@@ -456,7 +471,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return;
                     }
                     results.forEach(function(result, i) {
-                        if (parseFloat(result.result[i].execution_secs || 0) > parseFloat(poolOptions.walletInterval))
+                        if (parseFloat(result.result[i].execution_secs || 0) > shielding_interval)
                             logger.warning(logSystem, logComponent, 'Increase walletInterval in pool_config. opid execution took '+result.result[i].execution_secs+' secs.');
                     });
                     opidInterval = setInterval(checkOpids, opid_interval);
@@ -471,6 +486,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
                 checkOpIdSuccessAndGetResult(result.response);
               } else {
                 opidInterval = setInterval(checkOpids, opid_interval);
+                if (opidCount > 0) {
+                    opidCount = 0;
+                    logger.warning(logSystem, logComponent, 'Cleared opidCount, no response from z_getoperationstatus RPC call.');
+                }
               }
             }, true, true);
         }
@@ -870,8 +889,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                                 if (timePeriod > 1.0) {
                                                     err = true;
                                                     logger.error(logSystem, logComponent, 'Time share period is greater than 1.0 for '+workerAddress+' round:' + round.height + ' blockHash:' + round.blockHash);
-                                                    return;                                                    
+                                                    return;
                                                 }
+                                                worker.timePeriod = timePeriod;
                                             } else {
                                                 logger.warning(logSystem, logComponent, 'PPLNT: Missing time share period for '+workerAddress+', miner shares qualified in round ' + round.height);
                                             }
@@ -937,6 +957,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     var addressAmounts = {};
                     var balanceAmounts = {};
                     var shareAmounts = {};
+                    var timePeriods = {};
                     var minerTotals = {};
                     var totalSent = 0;
                     var totalShares = 0;
