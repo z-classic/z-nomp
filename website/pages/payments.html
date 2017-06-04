@@ -1,0 +1,22 @@
+{{ for(var pool in it.stats.pools) { }}
+<table>
+    <thead>
+    <tr>
+        <th>Blocks</th>
+        <th>Time</th>
+        <th>Miners</th>
+        <th>Shares</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    {{ for(var p in it.stats.pools[pool].payments) { }}
+    <tr>
+        <td>{{=it.stats.pools[pool].payments[p].blocks}}</td>
+        <td>{{=it.stats.pools[pool].payments[p].time}}</td>
+        <td>{{=it.stats.pools[pool].payments[p].miners}}</td>
+        <td>{{=Math.round(it.stats.pools[pool].payments[p].shares)}}</td>
+        <td>{{=it.stats.pools[pool].payments[p].paid}} {{=it.stats.pools[pool].symbol}}</td>
+    </tr>
+    {{ } }}
+</table>
+{{ } }}
