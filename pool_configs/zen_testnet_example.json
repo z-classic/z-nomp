@@ -41,7 +41,7 @@
     "ports": {
         "3032": {
             "tls":false,
-            "diff": 0.05,
+            "diff": 2.5,
             "varDiff": {
                 "minDiff": 0.04,
                 "maxDiff": 16,
