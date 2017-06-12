@@ -1,7 +1,7 @@
 {
     "name": "z-nomp",
     "version": "0.0.4",
-    "description": "Zclassic (Equihash) stratum mining pool based on NOMP",
+    "description": "ZenCash (Equihash) stratum mining pool based on NOMP",
     "keywords": [
         "stratum",
         "mining",
@@ -12,9 +12,9 @@
         "zcash",
         "equihash"
     ],
-    "homepage": "https://github.com/z-classic/z-nomp",
+    "homepage": "https://github.com/zencashio/z-nomp",
     "bugs": {
-        "url": "https://github.com/z-classic/z-nomp/issues"
+        "url": "https://github.com/zencashio/z-nomp/issues"
     },
     "license": "MIT",
     "author": "Joshua Yabut",
@@ -31,30 +31,30 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/z-classic/z-nomp.git"
+        "url": "https://github.com/zencashio/z-nomp.git"
     },
     "dependencies": {
-        "stratum-pool": "git+https://github.com/z-classic/node-stratum-pool.git",
-        "dateformat": "2.0.0",
-        "node-json-minify": "1.0.0",
-        "redis": "2.7.1",
-        "mysql": "2.13.0",
         "async": "2.3.0",
-        "express": "4.15.2",
-        "body-parser": "1.17.1",
-        "compression": "1.6.2",
-        "dot": "1.1.1",
-        "colors": "1.1.2",
-        "node-watch": "0.5.2",
-        "request": "2.81.0",
-        "nonce": "1.0.4",
         "bignum": "0.12.5",
-        "extend": "3.0.0"
+        "body-parser": "1.17.1",
+        "colors": "1.1.2",
+        "compression": "1.6.2",
+        "dateformat": "2.0.0",
+        "dot": "1.1.1",
+        "express": "4.15.2",
+        "extend": "3.0.0",
+        "mysql": "2.13.0",
+        "node-json-minify": "1.0.0",
+        "node-watch": "0.5.2",
+        "nonce": "1.0.4",
+        "redis": "2.7.1",
+        "request": "2.81.0",
+        "stratum-pool": "git+https://github.com/z-classic/node-stratum-pool.git"
     },
     "engines": {
         "node": ">=0.10"
     },
     "scripts": {
-         "start": "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/node_modules/stratum-pool/node_modules/equihashverify/build/Release/:$PWD/node_modules/equihashverify/build/Release/ node init.js"
+        "start": "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/node_modules/stratum-pool/node_modules/equihashverify/build/Release/:$PWD/node_modules/equihashverify/build/Release/ node init.js"
     }
 }
