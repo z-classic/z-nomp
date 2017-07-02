@@ -7,6 +7,13 @@ var os = require('os');
 
 var algos = require('stratum-pool/lib/algoProperties.js');
 
+// redis callback Ready check failed bypass trick
+function rediscreateClient(port, host, pass) {
+    var client = redis.createClient(port, host);
+    client.auth(pass);
+    return client;
+}
+
 function balanceRound(number) {
 	return parseFloat((Math.round(number * 100000000) / 100000000).toFixed(8));
 }
@@ -80,14 +87,16 @@ module.exports = function(logger, portalConfig, poolConfigs){
         }
         redisClients.push({
             coins: [coin],
-            client: redis.createClient(redisConfig.port, redisConfig.host)
+            //client: redis.createClient(redisConfig.port, redisConfig.host)
+            client: rediscreateClient(redisConfig.port, redisConfig.host, redisConfig.password)
         });
     });
 
     function setupStatsRedis(){
         redisStats = redis.createClient(portalConfig.redis.port, portalConfig.redis.host);
         redisStats.on('error', function(err){
-            logger.error(logSystem, 'Historics', 'Redis for stats had an error ' + JSON.stringify(err));
+        //    logger.debug(logSystem, 'Global', 'redis.Auth1 "' + portalConfig.redis.password + '"');
+        redisStats.auth(portalConfig.redis.password);
         });
     }
 
