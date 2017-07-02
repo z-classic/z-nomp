@@ -54,7 +54,6 @@ module.exports = function(logger){
     var keyScriptTemplate = '';
     var keyScriptProcessed = '';
 
-
     var processTemplates = function(){
 
         for (var pageName in pageTemplates){
@@ -135,6 +134,7 @@ module.exports = function(logger){
         async.waterfall([
             function(callback){
                 var client = redis.createClient(portalConfig.redis.port, portalConfig.redis.host);
+                client.auth(portalConfig.redis.password);
                 client.hgetall('coinVersionBytes', function(err, coinBytes){
                     if (err){
                         client.quit();
