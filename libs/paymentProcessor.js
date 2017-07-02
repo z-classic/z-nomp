@@ -82,6 +82,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
         logger[severity](logSystem, logComponent, message);
     });
     var redisClient = redis.createClient(poolOptions.redis.port, poolOptions.redis.host);
+        // redis auth if enabled
         redisClient.auth(poolOptions.redis.password);
     
     var magnitude;
