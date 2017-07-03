@@ -87,7 +87,6 @@ module.exports = function(logger, portalConfig, poolConfigs){
         }
         redisClients.push({
             coins: [coin],
-            //client: redis.createClient(redisConfig.port, redisConfig.host)
             client: rediscreateClient(redisConfig.port, redisConfig.host, redisConfig.password)
         });
     });
@@ -95,7 +94,6 @@ module.exports = function(logger, portalConfig, poolConfigs){
     function setupStatsRedis(){
         redisStats = redis.createClient(portalConfig.redis.port, portalConfig.redis.host);
         redisStats.on('error', function(err){
-        //    logger.debug(logSystem, 'Global', 'redis.Auth1 "' + portalConfig.redis.password + '"');
         redisStats.auth(portalConfig.redis.password);
         });
     }
