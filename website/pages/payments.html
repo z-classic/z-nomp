@@ -1,3 +1,38 @@
+<style>
+    #bottomNotes {
+        display: block;
+        padding-left: 18px;
+        padding-right: 18px;
+        padding-bottom: 18px;
+    }
+    #topPool {
+        padding-top: 18px;
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+    #topPool > div > div > svg {
+        display: block;
+        height: 280px;
+    }
+    .poolWrapper {
+        border: solid 1px #c7c7c7;
+        border-radius: 5px;
+        padding: 5px;
+        margin-bottom: 18px;
+    }
+    .poolLabel {
+        font-size: 1.2em;
+        text-align: center;
+        padding: 4px;
+    }
+    .poolMinerTable {
+
+    }
+    table {
+        width: 100%;
+    }
+</style>
+
 {{ for(var pool in it.stats.pools) { }}
 <table>
     <thead>
@@ -27,5 +62,6 @@
           <td>{{=it.stats.pools[pool].payments[p].paid}} {{=it.stats.pools[pool].symbol}}</td>
       </tr>
       {{ } }}
-</table>
+  </table>
+</div>
 {{ } }}

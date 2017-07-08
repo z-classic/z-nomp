@@ -228,6 +228,7 @@ module.exports = function(logger){
 			address = address.split(".")[0];
             portalStats.getBalanceByAddress(address, function(){
                 processTemplates();
+		res.header('Content-Type', 'text/html');
                 res.end(indexesProcessed['miner_stats']);
             });
         }
