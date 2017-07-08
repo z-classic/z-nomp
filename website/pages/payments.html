@@ -9,14 +9,23 @@
         <th>Amount</th>
     </tr>
     </thead>
-    {{ for(var p in it.stats.pools[pool].payments) { }}
-    <tr>
-        <td>{{=it.stats.pools[pool].payments[p].blocks}}</td>
-        <td>{{=it.stats.pools[pool].payments[p].time}}</td>
-        <td>{{=it.stats.pools[pool].payments[p].miners}}</td>
-        <td>{{=Math.round(it.stats.pools[pool].payments[p].shares)}}</td>
-        <td>{{=it.stats.pools[pool].payments[p].paid}} {{=it.stats.pools[pool].symbol}}</td>
-    </tr>
-    {{ } }}
+      {{ for(var p in it.stats.pools[pool].payments) { }}
+      <tr>
+          <td>
+          {{=it.stats.pools[pool].payments[p].blocks}}
+          </td>
+          <td>
+          <script type="text/javascript">
+            var utcSeconds = {{=it.stats.pools[pool].payments[p].time}};
+            var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+            d.setUTCSeconds(utcSeconds);
+            document.write(d)
+          </script>
+          </td>
+          <td>{{=it.stats.pools[pool].payments[p].miners}}</td>
+          <td>{{=Math.round(it.stats.pools[pool].payments[p].shares)}}</td>
+          <td>{{=it.stats.pools[pool].payments[p].paid}} {{=it.stats.pools[pool].symbol}}</td>
+      </tr>
+      {{ } }}
 </table>
 {{ } }}
