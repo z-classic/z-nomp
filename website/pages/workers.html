@@ -32,7 +32,18 @@
         width: 100%;
     }
 </style>
-<script type="text/javascript">
+<script type="text/javascript"> 
+function searchKeyPress(e)
+{
+    // look for window.event in case event isn't passed in
+    e = e || window.event;
+    if (e.keyCode == 13)
+    {
+        document.getElementById('btnSearch').click();
+        return false;
+    }
+    return true;
+}
         $(document).ready(function(){
                 $('.btn-lg').click(function(){
                         window.location = "workers/" + $('.input-lg').val();
@@ -46,7 +57,7 @@
         <div class="poolLabel">
 			<span style="float:right; margin-bottom: 8px;">
 				<small>Miner Lookup: 
-				<input type="text" class="form-control input-lg">
+				<input type="text" class="form-control input-lg" onkeypress="return searchKeyPress(event);">
 				<span class="input-group-btn">
 						<button class="btn btn-default btn-lg" type="button">Lookup</button>
 				</span>
