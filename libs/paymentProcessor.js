@@ -985,7 +985,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         worker.reward = worker.reward || 0;
                         // get miner payout totals
                         var toSendSatoshis = Math.round((worker.balance + worker.reward) * (1 - withholdPercent));
-                        var address = worker.address = (worker.address || getProperAddress(w.split('.')[0]));
+                        var address = worker.address = (worker.address || getProperAddress(w.split('.')[0])).trim();
                         if (minerTotals[address] != null && minerTotals[address] > 0) {
                             minerTotals[address] += toSendSatoshis;
                         } else {
@@ -998,7 +998,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         worker.balance = worker.balance || 0;
                         worker.reward = worker.reward || 0;
                         var toSendSatoshis = Math.round((worker.balance + worker.reward) * (1 - withholdPercent));
-                        var address = worker.address = (worker.address || getProperAddress(w.split('.')[0]));
+                        var address = worker.address = (worker.address || getProperAddress(w.split('.')[0])).trim();
                         // if miners total is enough, go ahead and add this worker balance
                         if (minerTotals[address] >= minPaymentSatoshis) {
                             totalSent += toSendSatoshis;
