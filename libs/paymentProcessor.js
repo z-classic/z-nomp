@@ -476,7 +476,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     }
                     // check result execution_secs vs pool_config
                     results.forEach(function(result, i) {
-                        if (parseFloat(result.result[i].execution_secs || 0) > shielding_interval) {
+                        if (result.result[i] && parseFloat(result.result[i].execution_secs || 0) > shielding_interval) {
                             logger.warning(logSystem, logComponent, 'Warning, walletInverval shorter than opid execution time of '+result.result[i].execution_secs+' secs.');
                         }
                     });
