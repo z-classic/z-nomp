@@ -21,5 +21,11 @@
         "zrEFrGWLX4hPHuHRUD3TPbMAJyeSpMSctUc", "zr5c3f8PTnW8qBFX1GvK2LhyLBBCb1WDdGG", "zrGkAZkZLqC9QKJR3XomgxNizCpNuAupTeg", "zrM7muDowiun9tCHhu5K9vcDGfUptuYorfZ",
         "zrCsWfwKotWnQmFviqAHAPAJ2jXqZYW966P", "zrLLB3JB3jozUoMGFEGhjqyVXTpngVQ8c4T", "zrAEa8YjJ2f3m2VsM1Xa9EwibZxEnRoSLUx", "zrAdJgp7Cx35xTvB7ABWP8YLTNDArMjP1s3"
     ],
+    "percentTreasuryReward": 12.0,
+    "treasuryRewardStartBlockHeight": 85500,
+    "treasuryRewardAddressChangeInterval": 10000,
+    "vTreasuryRewardAddress": [
+        "zrRBQ5heytPMN5nY3ssPf3cG4jocXeD8fm1", "zrRBQ5heytPMN5nY3ssPf3cG4jocXeD8fm1", "zrRBQ5heytPMN5nY3ssPf3cG4jocXeD8fm1", "zrRBQ5heytPMN5nY3ssPf3cG4jocXeD8fm1"
+    ],
     "txfee": 0.0004
 }

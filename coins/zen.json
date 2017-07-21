@@ -57,6 +57,15 @@
         "zsi5Yr4Z8HwBvdBqQE8gk7ahExDu95J4oqZ",
         "zsy6ryEaxfk8emJ8bGVB7tmwRwBL8cfSqBW"
     ],
+    "percentTreasuryReward": 12.0,
+    "treasuryRewardStartBlockHeight": 139200,
+    "treasuryRewardAddressChangeInterval": 50000,
+    "vTreasuryRewardAddress": [
+        "zsyF68hcYYNLPj5i4PfQJ1kUY6nsFnZkc82",
+        "zsfULrmbX7xbhqhAFRffVqCw9RyGv2hqNNG",
+        "zsoemTfqjicem2QVU8cgBHquKb1o9JR5p4Z",
+        "zt339oiGL6tTgc9Q71f5g1sFTZf6QiXrRUr"
+    ],
     "peerMagic": "63617368",
     "txfee": 0.0004
 }
