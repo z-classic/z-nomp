@@ -769,7 +769,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 return true;                                        
                             case 'generate':
                                 payingBlocks++;
-                                return (payingBlocks < maxBlocksPerPayment);
+                                return (payingBlocks <= maxBlocksPerPayment);
                                 
                             default:
                                 return false;
