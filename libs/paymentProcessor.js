@@ -594,6 +594,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             serialized: r
                         };
                     });
+                    /* sort rounds by block hieght to pay in order */
+                    rounds.sort(function(a, b) {
+                        return a.height - b.height;
+                    });
                     // find duplicate blocks by height
                     // this can happen when two or more solutions are submitted at the same block height
                     var duplicateFound = false;
@@ -757,14 +761,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return true;
                     };
 
-                    // limit blocks paid per payment round
+                    // only pay max blocks at a time
                     var payingBlocks = 0;
-                    //filter out all rounds that are immature (not confirmed or orphaned yet)
                     rounds = rounds.filter(function(r){
-                        // only pay max blocks at a time
-                        if (payingBlocks >= maxBlocksPerPayment)
-                            return false;
-
                         switch (r.category) {
                             case 'orphan':
                             case 'kicked':
@@ -772,7 +771,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 return true;                                        
                             case 'generate':
                                 payingBlocks++;
-                                return true;
+                                return (payingBlocks <= maxBlocksPerPayment);
                                 
                             default:
                                 return false;
