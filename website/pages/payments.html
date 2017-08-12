@@ -32,7 +32,30 @@
         width: 100%;
     }
 </style>
+<script type="text/javascript">
+  $(function () {
+    $(document).tooltip({
+        content: function () {
+            return $(this).prop('title');
+        },
+        show: null, 
+        close: function (event, ui) {
+            ui.tooltip.hover(
 
+            function () {
+                $(this).stop(true).fadeTo(400, 1);
+            },
+
+            function () {
+                $(this).fadeOut("400", function () {
+                    $(this).remove();
+                })
+            });
+        }
+    });
+});
+</script>
+{{ function readableDate(a){ return new Date(parseInt(a)).toString(); } }}
 {{ for(var pool in it.stats.pools) { }}
 <table>
     <thead>
@@ -45,18 +68,21 @@
     </tr>
     </thead>
       {{ for(var p in it.stats.pools[pool].payments) { }}
-      <tr>
+<tr>
           <td>
+          {{if (String(it.stats.pools[pool].name).startsWith("zcash")) { }}
+          <a href="https://explorer.zcha.in/tx/{{=it.stats.pools[pool].payments[p].txid}}"  title="View transaction" target="_blank">{{=it.stats.pools[pool].payments[p].blocks}}</a>
+          {{ } else if (String(it.stats.pools[pool].name).startsWith("zclassic")) { }}
+            <a href="https://classic.zcha.in/tx/{{=it.stats.pools[pool].payments[p].txid}}"  title="View transaction" target="_blank">{{=it.stats.pools[pool].payments[p].blocks}}</a>
+          {{ } else if (String(it.stats.pools[pool].name).startsWith("hush")) { }}
+            <a href="https://explorer.myhush.org/tx/{{=it.stats.pools[pool].payments[p].txid}}"  title="View transaction" target="_blank">{{=it.stats.pools[pool].payments[p].blocks}}</a>
+          {{ } else if (String(it.stats.pools[pool].name).startsWith("zen")) { }}
+            <a href="http://node1.zenchain.info:8886/tx/{{=it.stats.pools[pool].payments[p].txid}}"  title="View transaction" target="_blank">{{=it.stats.pools[pool].payments[p].blocks}}</a>
+          {{ } else { }}
           {{=it.stats.pools[pool].payments[p].blocks}}
+          {{ } }}
           </td>
-          <td>
-          <script type="text/javascript">
-            var utcSeconds = {{=it.stats.pools[pool].payments[p].time}};
-            var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-            d.setUTCSeconds(utcSeconds);
-            document.write(d)
-          </script>
-          </td>
+          <td>{{=readableDate(it.stats.pools[pool].payments[p].time)}}</td>
           <td>{{=it.stats.pools[pool].payments[p].miners}}</td>
           <td>{{=Math.round(it.stats.pools[pool].payments[p].shares)}}</td>
           <td>{{=it.stats.pools[pool].payments[p].paid}} {{=it.stats.pools[pool].symbol}}</td>
