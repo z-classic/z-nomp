@@ -136,16 +136,6 @@ module.exports = function(logger){
                 if (poolOptions.validateWorkerUsername !== true)
                     authCallback(true);
                 else {
-                    if (workerName.length === 40) {
-                        try {
-                            new Buffer(workerName, 'hex');
-                            authCallback(true);
-                        }
-                        catch (e) {
-                            authCallback(false);
-                        }
-                    }
-                    else {
                         pool.daemon.cmd('validateaddress', [String(workerName).split(".")[0]], function (results) {
                             var isValid = results.filter(function (r) {
                                 return r.response.isvalid
@@ -153,8 +143,7 @@ module.exports = function(logger){
                             authCallback(isValid);
                         });
                     }
-
-                }
+                
             };
 
             handlers.share = function(isValidShare, isValidBlock, data){
