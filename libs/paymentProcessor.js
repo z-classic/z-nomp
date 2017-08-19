@@ -1297,7 +1297,15 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
 
     var getProperAddress = function(address){
-     return address;
+        if (address.length >= 40){
+            logger.warning(logSystem, logComponent, 'Invalid address '+address+', convert to address '+(poolOptions.invalidAddress || poolOptions.address));
+            return (poolOptions.invalidAddress || poolOptions.address);
+        }
+        if (address.length <= 30) {
+            logger.warning(logSystem, logComponent, 'Invalid address '+address+', convert to address '+(poolOptions.invalidAddress || poolOptions.address));
+            return (poolOptions.invalidAddress || poolOptions.address);
+        }
+        return address;
     };
 
 }
