@@ -47,8 +47,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
     var logSystem = 'Payments';
     var logComponent = coin;
+
     var opidCount = 0;
-    
+    var opids = [];
+
     // zcash team recommends 10 confirmations for safety from orphaned blocks
     var minConfShield = Math.max((processingConfig.minConf || 10), 1); // Don't allow 0 conf transactions.
     var minConfPayout = Math.max((processingConfig.minConf || 10), 1);
@@ -82,7 +84,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
         logger[severity](logSystem, logComponent, message);
     });
     var redisClient = redis.createClient(poolOptions.redis.port, poolOptions.redis.host);
-
+        // redis auth if enabled
+        redisClient.auth(poolOptions.redis.password);
+    
     var magnitude;
     var minPaymentSatoshis;
     var coinPrecision;
@@ -259,8 +263,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
+                    var opid = (result.response || result[0].response);                    
                     opidCount++;
-                    logger.special(logSystem, logComponent, 'Shield balance ' + amount);
+                    opids.push(opid);
+                    logger.special(logSystem, logComponent, 'Shield balance ' + amount + ' ' + opid);
                     callback = function (){};
                     callback(null);
                 }
@@ -300,8 +306,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     callback(true);
                 }
                 else {
+                    var opid = (result.response || result[0].response);                    
                     opidCount++;
-                    logger.special(logSystem, logComponent, 'Unshield funds for payout ' + amount);
+                    opids.push(opid);
+                    logger.special(logSystem, logComponent, 'Unshield funds for payout ' + amount + ' ' + opid);
                     callback = function (){};
                     callback(null);
                 }
@@ -440,10 +448,12 @@ function SetupForPool(logger, poolOptions, setupFinished){
                     // check operation id status
                     if (op.status == "success" || op.status == "failed") {
                         // clear operation id result
-                        batchRPC.push(['z_getoperationresult', [[op.id]]]);
-                        // clear operation id count
-                        if (opidCount > 0) {
-                            opidCount = 0;
+                        var opid_index = opids.indexOf(op.id);
+                        if (opid_index > -1) {
+                            // clear operation id count
+                            batchRPC.push(['z_getoperationresult', [[op.id]]]);
+                            opidCount--;
+                            opids.splice(opid_index, 1);
                         }
                         // log status to console
                         if (op.status == "failed") {
@@ -498,8 +508,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                 }
                 if (err === true) {
                     opidTimeout = setTimeout(checkOpids, opid_interval);
-                    if (opidCount > 0) {
+                    if (opidCount !== 0) {
                         opidCount = 0;
+                        opids = [];
                         logger.warning(logSystem, logComponent, 'Clearing operation ids due to RPC call errors.');
                     }
                 }
@@ -591,6 +602,10 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             duplicate: false,
                             serialized: r
                         };
+                    });
+                    /* sort rounds by block hieght to pay in order */
+                    rounds.sort(function(a, b) {
+                        return a.height - b.height;
                     });
                     // find duplicate blocks by height
                     // this can happen when two or more solutions are submitted at the same block height
@@ -755,14 +770,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         return true;
                     };
 
-                    // limit blocks paid per payment round
+                    // only pay max blocks at a time
                     var payingBlocks = 0;
-                    //filter out all rounds that are immature (not confirmed or orphaned yet)
                     rounds = rounds.filter(function(r){
-                        // only pay max blocks at a time
-                        if (payingBlocks >= maxBlocksPerPayment)
-                            return false;
-
                         switch (r.category) {
                             case 'orphan':
                             case 'kicked':
@@ -770,7 +780,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 return true;                                        
                             case 'generate':
                                 payingBlocks++;
-                                return true;
+                                return (payingBlocks <= maxBlocksPerPayment);
                                 
                             default:
                                 return false;
@@ -1280,10 +1290,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
 
     var getProperAddress = function(address){
-        if (address.length === 40){
-            return util.addressFromEx(poolOptions.address, address);
-        }
-        else return address;
+     return address;
     };
 
 }

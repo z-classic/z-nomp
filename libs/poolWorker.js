@@ -19,6 +19,8 @@ module.exports = function(logger){
     var proxySwitch = {};
 
     var redisClient = redis.createClient(portalConfig.redis.port, portalConfig.redis.host);
+    	// redis auth if enabled 
+        redisClient.auth(portalConfig.redis.password);
 
     //Handle messages from master process sent via IPC
     process.on('message', function(message) {
@@ -134,16 +136,6 @@ module.exports = function(logger){
                 if (poolOptions.validateWorkerUsername !== true)
                     authCallback(true);
                 else {
-                    if (workerName.length === 40) {
-                        try {
-                            new Buffer(workerName, 'hex');
-                            authCallback(true);
-                        }
-                        catch (e) {
-                            authCallback(false);
-                        }
-                    }
-                    else {
                         pool.daemon.cmd('validateaddress', [String(workerName).split(".")[0]], function (results) {
                             var isValid = results.filter(function (r) {
                                 return r.response.isvalid
@@ -151,8 +143,7 @@ module.exports = function(logger){
                             authCallback(isValid);
                         });
                     }
-
-                }
+                
             };
 
             handlers.share = function(isValidShare, isValidBlock, data){
