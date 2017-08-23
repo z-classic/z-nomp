@@ -302,8 +302,8 @@ module.exports = function(logger){
     //app.get('/stats/shares/:coin', usershares);
     //app.get('/stats/shares', shares);
 	//app.get('/payout/:address', payout);
-	app.get('/workers/:address', minerpage);
-
+    app.use(compress());
+    app.get('/workers/:address', minerpage);
     app.get('/:page', route);
     app.get('/', route);
 
