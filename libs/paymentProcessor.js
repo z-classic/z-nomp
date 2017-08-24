@@ -444,6 +444,16 @@ function SetupForPool(logger, poolOptions, setupFinished){
             clearTimeout(opidTimeout);
             var checkOpIdSuccessAndGetResult = function(ops) {
                 var batchRPC = [];
+                // if there are no op-ids
+                if (ops.length == 0) {
+                    // and we think there is
+                    if (opidCount !== 0) {
+                        // clear them!
+                        opidCount = 0;
+                        opids = [];
+                        logger.warning(logSystem, logComponent, 'Clearing operation ids due to empty result set.');
+                    }
+                }
                 ops.forEach(function(op, i){
                     // check operation id status
                     if (op.status == "success" || op.status == "failed") {
@@ -466,10 +476,7 @@ function SetupForPool(logger, poolOptions, setupFinished){
                             logger.special(logSystem, logComponent, 'Shielding operation success ' + op.id + '  txid: ' + op.result.txid);
                         }
                     } else if (op.status == "executing") {
-                        if (opidCount == 0) {
-                            opidCount++;
-                            logger.special(logSystem, logComponent, 'Shielding operation in progress ' + op.id );
-                        }
+                        logger.special(logSystem, logComponent, 'Shielding operation in progress ' + op.id );
                     }
                 });
                 // if there are no completed operations
@@ -1290,7 +1297,15 @@ function SetupForPool(logger, poolOptions, setupFinished){
 
 
     var getProperAddress = function(address){
-     return address;
+        if (address.length >= 40){
+            logger.warning(logSystem, logComponent, 'Invalid address '+address+', convert to address '+(poolOptions.invalidAddress || poolOptions.address));
+            return (poolOptions.invalidAddress || poolOptions.address);
+        }
+        if (address.length <= 30) {
+            logger.warning(logSystem, logComponent, 'Invalid address '+address+', convert to address '+(poolOptions.invalidAddress || poolOptions.address));
+            return (poolOptions.invalidAddress || poolOptions.address);
+        }
+        return address;
     };
 
 }
