@@ -15,9 +15,11 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
         switch(req.params.method){
             case 'stats':
+                res.header('Content-Type', 'application/json');
                 res.end(portalStats.statsString);
                 return;
             case 'pool_stats':
+                res.header('Content-Type', 'application/json');
                 res.end(JSON.stringify(portalStats.statPoolHistory));
                 return;
             case 'payments':
@@ -25,9 +27,11 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 for(var pool in portalStats.stats.pools) {
                     poolBlocks.push({name: pool, pending: portalStats.stats.pools[pool].pending, payments: portalStats.stats.pools[pool].payments});
                 }
+                res.header('Content-Type', 'application/json');
                 res.end(JSON.stringify(poolBlocks));
                 return;
 			case 'worker_stats':
+				res.header('Content-Type', 'application/json');
 				if (req.url.indexOf("?")>0) {
 				var url_parms = req.url.split("?");
 				if (url_parms.length > 0) {
