@@ -860,7 +860,11 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                 totalOwed = totalOwed + coinsToSatoshies(rounds[i].reward) - feeSatoshi;
                             }
                         }
-
+                        // also include balances owed
+                        for (var w in workers) {
+                            var worker = workers[w];
+                            totalOwed = totalOwed + (worker.balance||0);
+                        }
                         // check if we have enough tAddress funds to begin payment processing
                         listUnspent(null, notAddr, minConfPayout, false, function (error, tBalance){
                             if (error) {
