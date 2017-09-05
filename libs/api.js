@@ -23,6 +23,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 res.end(JSON.stringify(portalStats.statPoolHistory));
                 return;
             case 'blocks':
+            case 'getblocksstats':
                 portalStats.getBlocks(function(data){
                     res.header('Content-Type', 'application/json');
                     res.end(JSON.stringify(data));                                        
