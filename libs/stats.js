@@ -10,13 +10,12 @@ var algos = require('stratum-pool/lib/algoProperties.js');
 // redis callback Ready check failed bypass trick
 function rediscreateClient(port, host, pass) {
     var client = redis.createClient(port, host);
-    client.auth(pass);
+    if (pass) {
+        client.auth(pass);
+    }
     return client;
 }
 
-function balanceRound(number) {
-	return parseFloat((Math.round(number * 100000000) / 100000000).toFixed(8));
-}
 
 /**
  * Sort object properties (only own properties will be sorted).
@@ -98,6 +97,24 @@ module.exports = function(logger, portalConfig, poolConfigs){
         });
     }
 
+   this.getBlocks = function (cback) {
+        var allBlocks = {};
+        async.each(_this.stats.pools, function(pool, pcb) {
+
+            if (_this.stats.pools[pool.name].pending && _this.stats.pools[pool.name].pending.blocks)
+                for (var i=0; i<_this.stats.pools[pool.name].pending.blocks.length; i++)
+                    allBlocks[pool.name+"-"+_this.stats.pools[pool.name].pending.blocks[i].split(':')[2]] = _this.stats.pools[pool.name].pending.blocks[i];
+        
+            if (_this.stats.pools[pool.name].confirmed && _this.stats.pools[pool.name].confirmed.blocks)
+                for (var i=0; i<_this.stats.pools[pool.name].confirmed.blocks.length; i++)
+                    allBlocks[pool.name+"-"+_this.stats.pools[pool.name].confirmed.blocks[i].split(':')[2]] = _this.stats.pools[pool.name].confirmed.blocks[i];
+            
+            pcb();
+        }, function(err) {
+            cback(allBlocks);            
+        });
+    };
+    
     function gatherStatHistory(){
         var retentionTime = (((Date.now() / 1000) - portalConfig.website.stats.historicalRetention) | 0).toString();
         redisStats.zrangebyscore(['statHistory', retentionTime, '+inf'], function(err, replies){
@@ -160,6 +177,31 @@ module.exports = function(logger, portalConfig, poolConfigs){
         _this.statPoolHistory.push(data);
     }
     
+    var magnitude = 100000000;
+    var coinPrecision = magnitude.toString().length - 1;
+    
+    function roundTo(n, digits) {
+        if (digits === undefined) {
+            digits = 0;
+        }
+        var multiplicator = Math.pow(10, digits);
+        n = parseFloat((n * multiplicator).toFixed(11));
+        var test =(Math.round(n) / multiplicator);
+        return +(test.toFixed(digits));
+    }
+
+    var satoshisToCoins = function(satoshis){
+        return roundTo((satoshis / magnitude), coinPrecision);
+    };
+    
+    var coinsToSatoshies = function(coins){
+        return Math.round(coins * magnitude);
+    };
+
+    function coinsRound(number) {
+        return roundTo(number, coinPrecision);
+    }
+    
     function readableSeconds(t) {
         var seconds = Math.round(t);
         var minutes = Math.floor(seconds/60);
@@ -187,7 +229,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 });
             }
         ], function(err, total){
-            cback(balanceRound(total).toFixed(8));
+            cback(coinsRound(total).toFixed(8));
         });
     };
 	
@@ -202,7 +244,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 		async.each(_this.stats.pools, function(pool, pcb) {
             pindex++;
 			var coin = String(_this.stats.pools[pool.name].name);
-			client.hscan(coin + ':shares:roundCurrent', 0, "match", a+"*", function(error, result) {
+			client.hscan(coin + ':shares:roundCurrent', 0, "match", a+"*", "count", 1000, function(error, result) {
                 if (error) {
                     pcb(error);
                     return;
@@ -232,7 +274,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
             }
 		});
 	};
-	
+
     this.getBalanceByAddress = function(address, cback){
 
 	    var a = address.split(".")[0];
@@ -243,53 +285,68 @@ module.exports = function(logger, portalConfig, poolConfigs){
 		
 		var totalHeld = parseFloat(0);
 		var totalPaid = parseFloat(0);
+        var totalImmature = parseFloat(0);
 				
 		async.each(_this.stats.pools, function(pool, pcb) {
 			var coin = String(_this.stats.pools[pool.name].name);
-			// get all balances from address
-			client.hscan(coin + ':balances', 0, "match", a+"*", "count", 1000, function(error, bals) {
-				// get all payouts from address
-				client.hscan(coin + ':payouts', 0, "match", a+"*", "count", 1000, function(error, pays) {
-                    
-					var workerName = "";
-					var balName = "";
-					var balAmount = 0;
-					var paidAmount = 0;
-                    
-                    var workers = {};
-                    
-					for (var i in pays[1]) {
-						if (Math.abs(i % 2) != 1) {
-							workerName = String(pays[1][i]);
-                            workers[workerName] = (workers[workerName] || {});
-						} else {
-							paidAmount = parseFloat(pays[1][i]);
-                            workers[workerName].paid = balanceRound(paidAmount);
-							totalPaid += paidAmount;
-						}
-					}
-                    for (var b in bals[1]) {
-                        if (Math.abs(b % 2) != 1) {
-                            balName = String(bals[1][b]);
-                            workers[balName] = (workers[balName] || {});
-                        } else {
-                            balAmount = parseFloat(bals[1][b]);
-                            workers[balName].balance = balanceRound(balAmount);
-                            totalHeld += balAmount;
+			// get all immature balances from address
+			client.hscan(coin + ':immature', 0, "match", a+"*", "count", 10000, function(error, pends) {
+                // get all balances from address
+                client.hscan(coin + ':balances', 0, "match", a+"*", "count", 10000, function(error, bals) {
+                    // get all payouts from address
+                    client.hscan(coin + ':payouts', 0, "match", a+"*", "count", 10000, function(error, pays) {
+                        
+                        var workerName = "";
+                        var balAmount = 0;
+                        var paidAmount = 0;
+                        var pendingAmount = 0;
+                        
+                        var workers = {};
+                        
+                        for (var i in pays[1]) {
+                            if (Math.abs(i % 2) != 1) {
+                                workerName = String(pays[1][i]);
+                                workers[workerName] = (workers[workerName] || {});
+                            } else {
+                                paidAmount = parseFloat(pays[1][i]);
+                                workers[workerName].paid = coinsRound(paidAmount);
+                                totalPaid += paidAmount;
+                            }
                         }
-                    }
-
-                    for (var w in workers) {
-                        balances.push({
-                            worker:String(w),
-                            balance:workers[w].balance,
-                            paid:workers[w].paid
-                        });
-                    }
-					
-					pcb();
-				});
-			});
+                        for (var b in bals[1]) {
+                            if (Math.abs(b % 2) != 1) {
+                                workerName = String(bals[1][b]);
+                                workers[workerName] = (workers[workerName] || {});
+                            } else {
+                                balAmount = parseFloat(bals[1][b]);
+                                workers[workerName].balance = coinsRound(balAmount);
+                                totalHeld += balAmount;
+                            }
+                        }
+                        for (var b in pends[1]) {
+                            if (Math.abs(b % 2) != 1) {
+                                workerName = String(pends[1][b]);
+                                workers[workerName] = (workers[workerName] || {});
+                            } else {
+                                pendingAmount = parseFloat(pends[1][b]);
+                                workers[workerName].immature = coinsRound(pendingAmount);
+                                totalImmature += pendingAmount;
+                            }
+                        }
+                        
+                        for (var w in workers) {
+                            balances.push({
+                                worker:String(w),
+                                balance:workers[w].balance,
+                                paid:workers[w].paid,
+                                immature:workers[w].immature
+                            });
+                        }
+                        
+                        pcb();
+                    });
+                });
+            });
 		}, function(err) {
 			if (err) {
 				callback("There was an error getting balances");
@@ -298,8 +355,8 @@ module.exports = function(logger, portalConfig, poolConfigs){
 			
 			_this.stats.balances = balances;
 			_this.stats.address = address;
-			
-			cback({totalHeld:balanceRound(totalHeld), totalPaid:balanceRound(totalPaid), balances});
+
+			cback({totalHeld:coinsRound(totalHeld), totalPaid:coinsRound(totalPaid), totalImmature:satoshisToCoins(totalImmature), balances});
 		});
 	};
 
@@ -382,9 +439,9 @@ module.exports = function(logger, portalConfig, poolConfigs){
 								blocks: replies[i + 6].sort(sortBlocks),
                                 confirms: (replies[i + 9] || {})
 							},
-                            /* show last 5 found blocks */
+                            /* show last 50 found blocks */
 							confirmed: {
-								blocks: replies[i + 7].sort(sortBlocks).slice(0,5)
+								blocks: replies[i + 7].sort(sortBlocks).slice(0,50)
 							},
                             payments: [],
 							currentRoundShares: (replies[i + 8] || {}),

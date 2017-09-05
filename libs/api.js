@@ -22,6 +22,13 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 res.header('Content-Type', 'application/json');
                 res.end(JSON.stringify(portalStats.statPoolHistory));
                 return;
+            case 'blocks':
+            case 'getblocksstats':
+                portalStats.getBlocks(function(data){
+                    res.header('Content-Type', 'application/json');
+                    res.end(JSON.stringify(data));                                        
+                });
+                break;
             case 'payments':
                 var poolBlocks = [];
                 for(var pool in portalStats.stats.pools) {
@@ -82,7 +89,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 									  }
 								  }
 								}
-								res.end(JSON.stringify({miner: address, totalHash: totalHash, totalShares: totalShares, networkSols: networkSols, balance: balances.totalHeld, paid: balances.totalPaid, workers: workers, history: history}));
+								res.end(JSON.stringify({miner: address, totalHash: totalHash, totalShares: totalShares, networkSols: networkSols, immature: balances.totalImmature, balance: balances.totalHeld, paid: balances.totalPaid, workers: workers, history: history}));
 							});
 						});
 					} else {
