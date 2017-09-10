@@ -15,19 +15,30 @@ module.exports = function(logger, portalConfig, poolConfigs){
 
         switch(req.params.method){
             case 'stats':
+                res.header('Content-Type', 'application/json');
                 res.end(portalStats.statsString);
                 return;
             case 'pool_stats':
+                res.header('Content-Type', 'application/json');
                 res.end(JSON.stringify(portalStats.statPoolHistory));
                 return;
+            case 'blocks':
+            case 'getblocksstats':
+                portalStats.getBlocks(function(data){
+                    res.header('Content-Type', 'application/json');
+                    res.end(JSON.stringify(data));                                        
+                });
+                break;
             case 'payments':
                 var poolBlocks = [];
                 for(var pool in portalStats.stats.pools) {
                     poolBlocks.push({name: pool, pending: portalStats.stats.pools[pool].pending, payments: portalStats.stats.pools[pool].payments});
                 }
+                res.header('Content-Type', 'application/json');
                 res.end(JSON.stringify(poolBlocks));
                 return;
 			case 'worker_stats':
+				res.header('Content-Type', 'application/json');
 				if (req.url.indexOf("?")>0) {
 				var url_parms = req.url.split("?");
 				if (url_parms.length > 0) {
@@ -78,7 +89,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
 									  }
 								  }
 								}
-								res.end(JSON.stringify({miner: address, totalHash: totalHash, totalShares: totalShares, networkSols: networkSols, balance: balances.totalHeld, paid: balances.totalPaid, workers: workers, history: history}));
+								res.end(JSON.stringify({miner: address, totalHash: totalHash, totalShares: totalShares, networkSols: networkSols, immature: balances.totalImmature, balance: balances.totalHeld, paid: balances.totalPaid, workers: workers, history: history}));
 							});
 						});
 					} else {

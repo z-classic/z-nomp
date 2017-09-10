@@ -134,7 +134,9 @@ module.exports = function(logger){
         async.waterfall([
             function(callback){
                 var client = redis.createClient(portalConfig.redis.port, portalConfig.redis.host);
-                client.auth(portalConfig.redis.password);
+                if (portalConfig.redis.password) {
+                    client.auth(portalConfig.redis.password);
+                }
                 client.hgetall('coinVersionBytes', function(err, coinBytes){
                     if (err){
                         client.quit();
@@ -302,8 +304,8 @@ module.exports = function(logger){
     //app.get('/stats/shares/:coin', usershares);
     //app.get('/stats/shares', shares);
 	//app.get('/payout/:address', payout);
-	app.get('/workers/:address', minerpage);
-
+    app.use(compress());
+    app.get('/workers/:address', minerpage);
     app.get('/:page', route);
     app.get('/', route);
 

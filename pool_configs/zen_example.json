@@ -11,6 +11,9 @@
     "tAddress": "znV763BSvdEySe3SCaTgHNiFrawiYzxRysb",
     "_comment_tAddress": "transparent address used to send payments, make this a different address, otherwise payments will not send",
 
+    "invalidAddress":"znhGeka9zXmixvw6ufzGpcaSXcSACrjx5WZ",
+    "_comment_invalidAddress": "Invalid addresses will be converted to the above",
+    
     "walletInterval": 2.5,
 
     "rewardRecipients": {

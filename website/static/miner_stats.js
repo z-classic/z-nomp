@@ -4,6 +4,7 @@ var workerHistoryMax = 160;
 
 var statData;
 var totalHash;
+var totalImmature;
 var totalBal;
 var totalPaid;
 var totalShares;
@@ -143,6 +144,7 @@ function updateStats() {
 	totalHash = statData.totalHash;
 	totalPaid = statData.paid;
 	totalBal = statData.balance;
+	totalImmature = statData.immature;
 	totalShares = statData.totalShares;
 	// do some calculations
 	var _blocktime = 250;
@@ -153,6 +155,7 @@ function updateStats() {
 	$("#statsHashrate").text(getReadableHashRateString(totalHash));
 	$("#statsHashrateAvg").text(getReadableHashRateString(calculateAverageHashrate(null)));
 	$("#statsLuckDays").text(luckDays);
+	$("#statsTotalImmature").text(totalImmature);
 	$("#statsTotalBal").text(totalBal);
 	$("#statsTotalPaid").text(totalPaid);
 	$("#statsTotalShares").text(totalShares.toFixed(2));
