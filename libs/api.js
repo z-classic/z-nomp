@@ -112,7 +112,7 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 var uid = Math.random().toString();
                 _this.liveStatConnections[uid] = res;
 		res.flush();
-                req.on("close", function() {
+                res.on("close", function() {
                     delete _this.liveStatConnections[uid];
                 });
                 return;
