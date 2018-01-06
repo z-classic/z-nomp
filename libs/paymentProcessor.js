@@ -735,7 +735,9 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         }
                         var round = rounds[i];
                         // update confirmations for round
-                        round.confirmations = parseInt((tx.result.confirmations || 0));
+                        if (tx && tx.result)
+                            round.confirmations = parseInt((tx.result.confirmations || 0));
+                        
                         // look for transaction errors
                         if (tx.error && tx.error.code === -5){
                             logger.warning(logSystem, logComponent, 'Daemon reports invalid transaction: ' + round.txHash);
