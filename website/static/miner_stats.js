@@ -178,7 +178,11 @@ function updateWorkerStats() {
 function addWorkerToDisplay(name, htmlSafeName, workerObj) {
 	var htmlToAdd = "";
 	htmlToAdd = '<div class="boxStats" id="boxStatsLeft" style="float:left; margin: 9px; min-width: 260px;"><div class="boxStatsList">';
-	htmlToAdd+='<div class="boxLowerHeader">'+name+'</div><div>';
+	if (htmlSafeName.indexOf("_") >= 0) {
+		htmlToAdd+= '<div class="boxLowerHeader">'+htmlSafeName.substr(htmlSafeName.indexOf("_")+1,htmlSafeName.length)+'</div>';
+	} else {
+		htmlToAdd+= '<div class="boxLowerHeader">noname</div>';
+	}
 	htmlToAdd+='<div><i class="fa fa-tachometer"></i> <span id="statsHashrate'+htmlSafeName+'">'+getReadableHashRateString(workerObj.hashrate)+'</span> (Now)</div>';
 	htmlToAdd+='<div><i class="fa fa-tachometer"></i> <span id="statsHashrateAvg'+htmlSafeName+'">'+getReadableHashRateString(calculateAverageHashrate(name))+'</span> (Avg)</div>';
 	htmlToAdd+='<div><i class="fa fa-shield"></i> <small>Diff:</small> <span id="statsDiff'+htmlSafeName+'">'+workerObj.diff+'</span></div>';
