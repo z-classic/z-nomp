@@ -35,6 +35,8 @@ https://zpool.it 0.5% fee
 
 http://miningpool.io/
 
+https://lucky-mining.com.ua/ Running MPOS and no fee, [vot][zcl][zen][hush][btg].lucky-mining.com.ua <-- Ukraine
+
 Usage
 =====
 
