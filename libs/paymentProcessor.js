@@ -908,8 +908,31 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                     logger.error(logSystem, logComponent, 'No worker shares for round: ' + round.height + ' blockHash: ' + round.blockHash);
                                     return;
                                 }
-                                var workerTimes = allWorkerTimes[i];
-                                                               
+                                var workerTimesWithPoolIds = allWorkerTimes[i];
+                                var workerTimes = {};
+                                var maxTime = 0;
+                                if (pplntEnabled === true) {
+	                                for (var workerAddressWithPoolId in workerTimesWithPoolIds){
+                                        var workerWithoutPoolId = workerAddressWithPoolId.split('.')[0];
+                                        var workerTimeFloat = parseFloat(workerTimesWithPoolIds[workerAddressWithPoolId]);
+                                        if (maxTime < workerTimeFloat) {
+                                            maxTime = workerTimeFloat;
+                                        }
+	                                    if (!(workerWithoutPoolId in workerTimes)) {
+	                                        workerTimes[workerWithoutPoolId] = workerTimeFloat;
+	                                    } else {
+                                            // add time from other instances with penalty
+	                                        if (workerTimes[workerWithoutPoolId] < workerTimeFloat) {
+	                                            workerTimes[workerWithoutPoolId] = workerTimes[workerWithoutPoolId] * 0.5 + workerTimeFloat;
+	                                        } else {
+                                                workerTimes[workerWithoutPoolId] = workerTimes[workerWithoutPoolId] + workerTimeFloat * 0.5; 
+                                            }
+                                            if (workerTimes[workerWithoutPoolId] > maxTime) {
+                                                workerTimes[workerWithoutPoolId] = maxTime;
+                                            }
+	                                    }
+	                                }
+                                }
                                 switch (round.category){
                                     case 'kicked':
                                     case 'orphan':
@@ -926,12 +949,6 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                         // adjust block immature .. tx fees
                                         immature = Math.round(immature - feeSatoshi);
                                         
-                                        // find most time spent in this round by single worker
-                                        maxTime = 0;
-                                        for (var workerAddress in workerTimes){
-                                            if (maxTime < parseFloat(workerTimes[workerAddress]))
-                                                maxTime = parseFloat(workerTimes[workerAddress]);
-                                        }
                                         // total up shares for round
                                         for (var workerAddress in workerShares){
                                             var worker = workers[workerAddress] = (workers[workerAddress] || {});
@@ -984,12 +1001,6 @@ function SetupForPool(logger, poolOptions, setupFinished){
                                         // adjust block reward .. tx fees
                                         reward = Math.round(reward - feeSatoshi);
                                         
-                                        // find most time spent in this round by single worker
-                                        maxTime = 0;
-                                        for (var workerAddress in workerTimes){
-                                            if (maxTime < parseFloat(workerTimes[workerAddress]))
-                                                maxTime = parseFloat(workerTimes[workerAddress]);
-                                        }
                                         // total up shares for round
                                         for (var workerAddress in workerShares){
                                             var worker = workers[workerAddress] = (workers[workerAddress] || {});
