@@ -616,12 +616,10 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 }
                 for (var worker in coinStats.currentRoundTimes) {
                     var time = parseFloat(coinStats.currentRoundTimes[worker]);
-                    if (_maxTimeShare < time)
-                        _maxTimeShare = time;
-                    
-                    var miner = worker.split(".")[0];
-                    if (miner in coinStats.miners) {
-                        coinStats.miners[miner].currRoundTime += parseFloat(coinStats.currentRoundTimes[worker]);
+                    if (_maxTimeShare < time) { _maxTimeShare = time; }
+                    var miner = worker.split(".")[0];	// split poolId from minerAddress
+                    if (miner in coinStats.miners && coinStats.miners[miner].currRoundTime < time) {
+                        coinStats.miners[miner].currRoundTime = time;
                     }
                 }
 
@@ -636,6 +634,10 @@ module.exports = function(logger, portalConfig, poolConfigs){
 					coinStats.workers[worker].luckHours = ((_networkHashRate / _wHashRate * _blocktime) / (60 * 60)).toFixed(3);
 					coinStats.workers[worker].hashrate = _workerRate;
 					coinStats.workers[worker].hashrateString = _this.getReadableHashRateString(_workerRate);
+					var miner = worker.split('.')[0];
+					if (miner in coinStats.miners) {
+						coinStats.workers[worker].currRoundTime = coinStats.miners[miner].currRoundTime;
+					}
                 }
 				for (var miner in coinStats.miners) {
 					var _workerRate = shareMultiplier * coinStats.miners[miner].shares / portalConfig.website.stats.hashrateWindow;
