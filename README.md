@@ -79,10 +79,10 @@ a good pool operator. For starters be sure to read:
 Clone the repository and run `npm update` for all the dependencies to be installed:
 
 ```bash
-sudo apt-get install build-essential libsodium-dev npm
+sudo apt-get install build-essential libsodium-dev npm libboost-system-dev
 sudo npm install n -g
 sudo n stable
-git clone https://github.com/joshuayabut/node-open-mining-portal.git z-nomp
+git clone https://github.com/z-classic/z-nomp.git
 cd z-nomp
 npm update
 npm install
