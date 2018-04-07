@@ -49,7 +49,7 @@
         "nonce": "1.0.4",
         "redis": "2.7.1",
         "request": "2.81.0",
-        "stratum-pool": "git+https://github.com/z-classic/node-stratum-pool.git#Update"
+        "stratum-pool": "git+https://github.com/z-classic/node-stratum-pool.git#update"
     },
     "engines": {
         "node": ">=0.10"
