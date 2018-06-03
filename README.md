@@ -23,15 +23,11 @@ If your pool uses Z-NOMP let us know and we will list your website here.
 
 ### Some pools using Z-NOMP or node-stratum-module:
 
-https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zclassic donation fund! 200+ blocks have been found as well! 
+http://mineflowpool.pl Z-nomp based pool. Custom frontend and API.
 
 http://luckpool.org Zcash Pool with Custom Frontend w/Miner's Jackpot
 
-http://zclmine.com/ Custom frontend
-
 http://zclassic.miningspeed.com Custom frontend and 0% fee
-
-https://zpool.it 0.5% fee
 
 http://miningpool.io/
 
