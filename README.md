@@ -1,12 +1,14 @@
 # Zcash® and Zclassic - Node Open Mining Portal
 
-**[Click here for the official - Zcash® and Zclassic Stratum Mining Pool Installation Guide](https://zdeveloper.org/wiki:z-nomp_install)**
+**[Click here for the official Zcash® and Zclassic Stratum Mining Pool Installation Guide](https://web.archive.org/web/20170606171730/https://zdeveloper.org/wiki:z-nomp_install)**
+> (this archived information is old, though useful; it will be replaced soon with a link to updated instructions)
 
 This is a Equihash mining pool based off of Node Open Mining Portal.
 
 Donations for development are greatly appreciated!
-  * BTC: 18vHMxVzotQ9EPyESrf7Z1hNM9AwJeVHgD
-  * ZCL: zcXDWbgReztLLXSTUMT2nEumiDM6zTzUXFb7vUnx9JNfJDVqbodyxwEQwgDkFw7Dp128tBU8n8rmVxT43DshmeTEM4LHcdz
+
+  * BTC: 3AP2G9vyKTeTERgohqdycp4JcZhWUP2qSx
+  * ZCL: t3eYEnoMmfUV65CZvPvV2mfAUnfFGoFbkJu
 
 #### Production Usage Notice
 This is beta software. All of the following are things that can change and break an existing Z-NOMP setup: functionality of any feature, structure of configuration files and structure of redis data. If you use this software in production then *DO NOT* pull new code straight into production usage because it can and often will break your setup and require you to tweak things like config files or redis data. *Only tagged releases are considered stable.*
@@ -14,16 +16,21 @@ This is beta software. All of the following are things that can change and break
 #### Paid Solution
 Usage of this software requires abilities with sysadmin, database admin, coin daemons, and sometimes a bit of programming. Running a production pool can literally be more work than a full-time job. 
 
+## Community / Support
 
-### Community / Support
-IRC
-* Support / general discussion join: https://gitter.im/zclassicorg/z-nomp
+* Join us on Discord: https://discord.gg/45NNrMJ  
+* IRC: https://gitter.im/zclassicorg/z-nomp
 
 If your pool uses Z-NOMP let us know and we will list your website here.
 
+Our **[Policy on Responsible Disclosure of Security Vulnerability](DISCLOSURE.md)** in Zclassic Software and Tools is explained [here](DISCLOSURE.md).
+
 ### Some pools using Z-NOMP or node-stratum-module:
 
-https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the Zclassic donation fund! 200+ blocks have been found as well! 
+(some information below may be outdated)
+
+https://pool.cryptobroker.io/zcl Running MPOS and 0.5% of the fee goes to the
+Zclassic donation fund! 200+ blocks have been found as well! (defunct)
 
 http://luckpool.org Zcash Pool with Custom Frontend w/Miner's Jackpot
 
@@ -35,13 +42,14 @@ https://zpool.it 0.5% fee
 
 http://miningpool.io/
 
-https://lucky-mining.com.ua/ Running MPOS and no fee, [vot][zcl][zen][hush][btg].lucky-mining.com.ua <-- Ukraine
+https://lucky-mining.com.ua/ Running MPOS and no fee,
+[vot][zcl][zen][hush][btg].lucky-mining.com.ua <-- Ukraine
+
 
 Usage
 =====
 
-
-#### Requirements
+### Requirements
 * Coin daemon(s) (find the coin's repo and build latest version from source)
 * [Node.js](http://nodejs.org/) v7+ ([follow these installation instructions](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager))
 * [Redis](http://redis.io/) key-value store v2.6+ ([follow these instructions](http://redis.io/topics/quickstart))
@@ -49,32 +57,35 @@ Usage
 ##### Seriously
 Those are legitimate requirements. If you use old versions of Node.js or Redis that may come with your system package manager then you will have problems. Follow the linked instructions to get the last stable versions.
 
-
 [**Redis security warning**](http://redis.io/topics/security): be sure firewall access to redis - an easy way is to
 include `bind 127.0.0.1` in your `redis.conf` file. Also it's a good idea to learn about and understand software that
 you are using - a good place to start with redis is [data persistence](http://redis.io/topics/persistence).
 
-
-#### 0) Setting up coin daemon
+### 0) Setting up coin daemon
 Follow the build/install instructions for your coin daemon. Your coin.conf file should end up looking something like this:
+
 ```
 daemon=1
 rpcuser=zclassicrpc
 rpcpassword=securepassword
 rpcport=8232
 ```
+
 For redundancy, its recommended to have at least two daemon instances running in case one drops out-of-sync or offline,
 all instances will be polled for block/transaction updates and be used for submitting blocks. Creating a backup daemon
 involves spawning a daemon using the `-datadir=/backup` command-line argument which creates a new daemon instance with
-it's own config directory and coin.conf file. Learn about the daemon, how to use it and how it works if you want to be
-a good pool operator. For starters be sure to read:
+its own config directory and coin.conf file. Learn about the daemon, how to use it and how it works if you want to be
+a good pool operator.
+
+For starters be sure to read:
+
    * https://en.bitcoin.it/wiki/Running_bitcoind
    * https://en.bitcoin.it/wiki/Data_directory
    * https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_Calls_list
    * https://en.bitcoin.it/wiki/Difficulty
 
 
-#### 1) Downloading & Installing
+### 1) Downloading & Installing
 
 Clone the repository and run `npm update` for all the dependencies to be installed:
 
@@ -88,9 +99,9 @@ npm update
 npm install
 ```
 
-##### Pool config
-Take a look at the example json file inside the `pool_configs` directory. Rename it to `zclassic.json` and change the
-example fields to fit your setup.
+### 2) Pool config
+Take a look at the example json file inside the `pool_configs` directory.
+Rename it to `zclassic.json` and change the example fields to fit your setup.
 
 ```
 Please Note that: 1 Difficulty is actually 8192, 0.125 Difficulty is actually 1024.
@@ -100,13 +111,14 @@ Whenever a miner submits a share, the pool counts the difficulty and keeps addin
 ie: Miner 1 mines at 0.1 difficulty and finds 10 shares, the pool sees it as 1 share. Miner 2 mines at 0.5 difficulty and finds 5 shares, the pool sees it as 2.5 shares. 
 ```
 
-
 ##### [Optional, recommended] Setting up blocknotify
+
 1. In `config.json` set the port and password for `blockNotifyListener`
 2. In your daemon conf file set the `blocknotify` command to use:
 ```
 node [path to cli.js] [coin name in config] [block hash symbol]
 ```
+
 Example: inside `zclassic.conf` add the line
 ```
 blocknotify=node /home/user/z-nomp/scripts/cli.js blocknotify zclassic %s
@@ -116,7 +128,7 @@ Alternatively, you can use a more efficient block notify script written in pure 
 are commented in [scripts/blocknotify.c](scripts/blocknotify.c).
 
 
-#### 3) Start the portal
+### 3) Start the portal
 
 ```bash
 npm start
@@ -133,8 +145,10 @@ output from Z-NOMP.
 
 
 #### Upgrading Z-NOMP
-When updating Z-NOMP to the latest code its important to not only `git pull` the latest from this repo, but to also update
-the `node-stratum-pool` and `node-multi-hashing` modules, and any config files that may have been changed.
+When updating Z-NOMP to the latest code its important to not only `git pull`
+the latest from this repo, but to also update the `node-stratum-pool` and
+`node-multi-hashing` modules, and any config files that may have been changed:
+
 * Inside your Z-NOMP directory (where the init.js script is) do `git pull` to get the latest Z-NOMP code.
 * Remove the dependenices by deleting the `node_modules` directory with `rm -r node_modules`.
 * Run `npm update` to force updating/reinstalling of the dependencies.
@@ -165,4 +179,4 @@ Credits
 
 License
 -------
-Released under the MIT License. See LICENSE file.
+Released under the GPL v2 License. See [LICENSE](LICENSE) file.
